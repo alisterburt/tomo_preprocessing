@@ -7,6 +7,7 @@ import starfile
 
 def run_relion_motioncorr(
         tilt_series_star_file: Path,
+        output_directory: Path,
         gain_reference_file: Path,
         gain_rotation: int,
         gain_flip: int,
@@ -25,7 +26,12 @@ def run_relion_motioncorr(
         mpi: int = 1,
         threads: int = 1,
 ):
-    pass
+    output_directory.mkdir(parents=True, exist_ok=True)
+    motioncor_input_star_file = output_directory / 'relion_motioncor_input.star'
+    create_relion_run_motioncor_input_file(tilt_series_star_file, motioncor_input_star_file)
+    motioncor_output_star_file = output_directory / 'corrected_micrographs.star'
+    #TODO: actually run motioncor here
+    create_output_corrected_star_files(motioncor_output_star_file, output_directory)
 
 
 def create_relion_run_motioncor_input_file(
