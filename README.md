@@ -18,14 +18,15 @@ pip install -e .
 ```
 
 # Programs
-A helptext can be found for each program with
-
-```shell
-<program_name> --help
-```
 
 | Job Type  | Program |
 | ------------- | ------------- |
 | Import  | `relion_tomo_import SerialEM`  |
 | Tilt-series alignment  | `relion_tomo_align_tilt_series IMOD:fiducials`  |
 | Tilt-series alignment  | `relion_tomo_align_tilt_series IMOD:patch_tracking`  |
+
+A helptext can be found for each program with
+
+```shell
+<program_name> --help
+```
