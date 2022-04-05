@@ -54,7 +54,7 @@ def import_tilt_series_from_serial_em(
     -------
     tilt_series_star_file : a text file pointing to STAR files containing per tilt-series metadata
     """
-    console.log('Started import job.')
+    console.log('Started import_tilt_series job.')
 
     # Create output directory structure
     tilt_series_directory = Path(output_directory) / 'tilt_series'
