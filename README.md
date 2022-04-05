@@ -6,4 +6,26 @@
 [![CI](https://github.com/alisterburt/tomography_preprocessing/actions/workflows/ci.yml/badge.svg)](https://github.com/alisterburt/tomography_preprocessing/actions/workflows/ci.yml)
 [![codecov](https://codecov.io/gh/alisterburt/tomography_preprocessing/branch/main/graph/badge.svg)](https://codecov.io/gh/alisterburt/tomography_preprocessing)
 
-package description.
+A cryo-ET tilt-series data preprocessing workflow for RELION 4.0
+
+# Installation
+In a virtual environment
+
+```sh
+git clone https://github.com/alisterburt/tomo_preprocessing.git
+cd tomo_preprocessing
+pip install -e .
+```
+
+# Programs
+A helptext can be found for each program with
+
+```shell
+<program_name> --help
+```
+
+| Job Type  | Program |
+| ------------- | ------------- |
+| Import  | `relion_tomo_import SerialEM`  |
+| Tilt-series alignment  | `relion_tomo_align_tilt_series IMOD:fiducials`  |
+| Tilt-series alignment  | `relion_tomo_align_tilt_series IMOD:patch_tracking`  |
