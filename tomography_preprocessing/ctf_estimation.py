@@ -7,11 +7,38 @@ import starfile
 
 def run_relion_ctffind(
         tilt_series_star_file: Path,
-        use_noDW: bo
+        output_directory: Path,
+        use_noDW: bool = True,
+        fft_box: int = 512,
+        res_min: float = 30.0,
+        res_max: float = 5.0,
+        df_min: float = 5000.0,
+        df_max: float = 50000.0,
+        df_step: float = 150.0,
+
+        use_ctffind4: bool = True,
+        use_summed_power_spectra: bool = False,
+        ctffind4_exe: str,
+        exhaustive_search: bool = False,
+        ctf_window: int = -1,
+
+        use_gctf: bool = False,
+        gctf_exe: str,
+        ignore_searches: bool = True,
+        do_EPA: bool = True
+        extra_gctf_args: str = '',
+        gpu_ids: str = '',
+
         mpi: int = 1,
         threads: int = 1,
 ):
-    pass
+    output_directory.mkdir(parents=True, exist_ok=True)
+    ctffind_input_star_file = output_directory / 'relion_ctffind_input.star'
+    create_relion_run_ctffind_input_file(tilt_series_star_file, ctffind_input_star_file)
+    # TODO: actually run relion ctffind
+    ctffind_output_star_file = output_directory / 'micrographs_ctf.star'
+    create_output_star_files(ctffind_output_star_file, output_directory)
+
 
 
 def create_relion_run_ctffind_input_file(
