@@ -1,6 +1,6 @@
 """Stub alternative CLI command for import job."""
 
-from .cli import cli
+from ._cli import cli
 
 
 @cli.command(name='alternative')

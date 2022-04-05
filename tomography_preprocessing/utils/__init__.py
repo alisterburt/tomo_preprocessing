@@ -1,1 +1,1 @@
-from . import mdoc, io, file, image
+from . import mdoc, io, file, image, star

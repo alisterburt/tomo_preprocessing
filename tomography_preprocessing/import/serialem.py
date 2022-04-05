@@ -8,7 +8,7 @@ import starfile
 import typer
 from rich.progress import track
 
-from .cli import cli
+from ._cli import cli
 from .. import utils
 
 
