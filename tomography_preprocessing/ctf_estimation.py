@@ -54,11 +54,12 @@ def create_relion_run_ctffind_input_file(
         'rlnTomoName': df['rlnTomoName'],
         'rlnMicrographMovieName': df['rlnTomoTiltMovieFile'],
         'rlnOpticsGroup': df['rlnOpticsGroup'],
+        'rlnMicrographName': df['rlnMicrographName']
     }
-    movie_df = pd.DataFrame(data_for_relion)
+    micrograph_df = pd.DataFrame(data_for_relion)
 
     starfile.write(
-        data={'optics': optics_block, 'movies': movie_df},
+        data={'optics': optics_block, 'micrographs': micrograph_df},
         filename=output_micrographs_star_file,
         force_loop=True,
         overwrite=True,
@@ -94,3 +95,8 @@ def create_output_star_files(
         'rlnTomoTiltSeriesStarFile': output_filenames,
         'rlnOpticsGroup': optics_block['rlnOpticsGroup'],
     }
+    starfile.write(data={'optics': optics_block,
+                         'global': global_data},
+                   filename=output_tilt_series_star_file,
+                   force_loop=True,
+                   overwrite=True)
