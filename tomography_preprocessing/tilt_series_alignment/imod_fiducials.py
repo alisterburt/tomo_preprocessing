@@ -1,11 +1,11 @@
 from pathlib import Path
 
+import typer
 from yet_another_imod_wrapper import align_using_fiducials as _run_fiducial_based_alignment
+
+from ._cli import cli
 from .. import utils
 from ..utils.star import iterate_tilt_series_metadata as _iterate_tilt_series_metadata
-from ._cli import cli
-
-import typer
 
 
 @cli.command(name='IMOD:fiducials')
@@ -14,7 +14,8 @@ def align_tilt_series_in_imod_using_fiducials(
         output_directory: Path = typer.Option(...),
         nominal_fiducial_diameter_nanometres: float = typer.Option(...),
 ):
-    for tilt_series_id, optics_df, tilt_image_df in _iterate_tilt_series_metadata(tilt_series_star_file):
+    for tilt_series_id, optics_df, tilt_image_df in _iterate_tilt_series_metadata(
+            tilt_series_star_file):
         tilt_series_filename = output_directory / f'{tilt_series_id}.mrc'
 
         # Order is important in IMOD, sort by tilt angle
@@ -30,13 +31,9 @@ def align_tilt_series_in_imod_using_fiducials(
             tilt_series_file=tilt_series_filename,
             tilt_angles=tilt_image_df['rlnTomoNominalStageTiltAngle'],
             pixel_size=utils.star.get_pixel_size(
-            optics_df, optics_group=optics_df['rlnOpticsGroup'][0]
-        ),
+                optics_df, optics_group=optics_df['rlnOpticsGroup'][0]
+            ),
             fiducial_size=nominal_fiducial_diameter_nanometres,
             nominal_rotation_angle=tilt_image_df['rlnTomoNominalTiltAxisAngle'][0],
             output_directory=output_directory / tilt_series_id,
         )
-
-
-
-
