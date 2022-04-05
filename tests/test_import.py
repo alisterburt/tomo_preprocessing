@@ -1,4 +1,3 @@
-from pathlib import Path
 import os
 
 from tomography_preprocessing.import_tilt_series import import_tilt_series_from_serial_em
