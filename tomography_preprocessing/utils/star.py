@@ -17,7 +17,7 @@ def iterate_tilt_series_metadata(
 ) -> Iterable[_TiltSeriesMetadata]:
     """Iterate over metadata from a tilt series data STAR file."""
     star = starfile.read(tilt_series_star_file)
-    for _, row in star['global'].iterrows():
+    for _, row in star['tilt_series'].iterrows():
         tilt_series_id = row['rlnTomoName']
         tilt_series_metadata = starfile.read(row['rlnTomoTiltSeriesStarFile'])
         yield tilt_series_id, tilt_series_metadata['optics'], tilt_series_metadata['tilt_images']

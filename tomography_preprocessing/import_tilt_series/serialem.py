@@ -83,7 +83,7 @@ def import_tilt_series_from_serial_em(
         'rlnTomoTiltSeriesStarFile': tilt_series_star_files,
     })
     starfile.write(
-        data={'global': global_df},
+        data={'tilt_series': global_df},
         filename=global_star_file,
         overwrite=True
     )
