@@ -34,15 +34,15 @@ def align_tilt_series_in_imod_using_fiducials(
         # implicit assumption - one tilt-axis angle per tilt-series
         utils.image.stack_image_files(
             image_files=tilt_image_df['rlnMicrographName'],
-            output_image_file=tilt_series_filename
+            output_image_file=tilt_series_path
         )
         _run_fiducial_based_alignment(
-            tilt_series_file=tilt_series_filename,
+            tilt_series_file=tilt_series_path,
             tilt_angles=tilt_image_df['rlnTomoNominalStageTiltAngle'],
             pixel_size=utils.star.get_pixel_size(
                 optics_df, optics_group=optics_df['rlnOpticsGroup'][0]
             ),
             fiducial_size=nominal_fiducial_diameter_nanometres,
             nominal_rotation_angle=tilt_image_df['rlnTomoNominalTiltAxisAngle'][0],
-            output_directory=output_directory / tilt_series_id,
+            output_directory=imod_directory
         )
