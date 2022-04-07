@@ -2,6 +2,7 @@ from pathlib import Path
 from typing import Optional, List
 
 import mdocfile
+import numpy as np
 import pandas as pd
 import rich
 import starfile
@@ -81,30 +82,24 @@ def import_tilt_series_from_serial_em(
     global_df = pd.DataFrame({
         'rlnTomoName': tomogram_ids,
         'rlnTomoTiltSeriesStarFile': tilt_series_star_files,
-    })
-    starfile.write(
-        data={'tilt_series': global_df},
-        filename=global_star_file,
-        overwrite=True
-    )
-    console.log(f'Wrote tilt-series data STAR file {global_star_file}')
-
-    # Construct optics dataframe
-    optics_df = pd.DataFrame({
-        'rlnOpticsGroupName': [prefix],
-        'rlnOpticsGroup': [1],
         'rlnVoltage': [voltage],
         'rlnSphericalAberration': [spherical_aberration],
         'rlnAmplitudeContrast': [amplitude_contrast],
         'rlnMicrographOriginalPixelSize': [nominal_pixel_size],
     })
-
     if mtf_file is not None:
-        optics_df['rlnMtfFileName'] = mtf_file
+        global_df['rlnMtfFileName'] = mtf_file
+
+    starfile.write(
+        data={'global': global_df},
+        filename=global_star_file,
+        overwrite=True
+    )
+    console.log(f'Wrote tilt-series data STAR file {global_star_file}')
 
     # Write out per tilt-series STAR files
     console.log('writing per tilt-series STAR files...')
-    for mdoc_file, output_filename in track(list(zip(mdoc_files, tilt_series_star_files))):
+    for  tomogram_id, mdoc_file, output_filename in track(list(zip(tomogram_ids, mdoc_files, tilt_series_star_files))):
         tilt_image_df = _generate_tilt_image_dataframe(
             mdoc_file=mdoc_file,
             tilt_image_files=tilt_image_files,
@@ -113,7 +108,7 @@ def import_tilt_series_from_serial_em(
             nominal_tilt_axis_angle=nominal_tilt_axis_angle,
         )
         starfile.write(
-            data={'optics': optics_df, 'tilt_images': tilt_image_df},
+            data={f'{tomogram_id}': tilt_image_df},
             filename=output_filename,
             overwrite=True
         )
@@ -138,16 +133,13 @@ def _generate_tilt_image_dataframe(
     df = utils.mdoc.add_tilt_image_files(mdoc_df=df, tilt_image_files=tilt_image_files)
     df['tilt_series_id'] = utils.mdoc.construct_tomogram_id(mdoc_file, prefix)
     df['nominal_tilt_axis_angle'] = nominal_tilt_axis_angle
-    df['optics_group'] = 1
 
     output_df = pd.DataFrame({
-        'rlnTomoName': df['tilt_series_id'],
         'rlnMicrographMovieName': df['tilt_image_file'],
         'rlnTomoTiltMovieFrameCount': df['num_sub_frames'],
-        'rlnTomoTiltMovieIndex': df['z_value'],
+        'rlnTomoTiltMovieIndex': np.array(df['z_value']) + 1,  # 0 -> 1 indexing
         'rlnTomoNominalStageTiltAngle': df['tilt_angle'],
         'rlnTomoNominalTiltAxisAngle': df['nominal_tilt_axis_angle'],
-        'rlnOpticsGroup': df['optics_group'],
         'rlnTomoNominalDefocus': df['target_defocus'],
         'rlnMicrographPreExposure': df['pre_exposure_dose'],
     })
