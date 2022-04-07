@@ -11,7 +11,9 @@ def stack_image_files(image_files: List[os.PathLike], output_image_file: os.Path
     n_images = len(image_files)
     _, h, w = get_image_shape(image_files[0])
     stack_shape = (n_images, h, w)
-    mrc = mrcfile.new_mmap(output_image_file, shape=stack_shape, mrc_mode=2)
+    mrc = mrcfile.new_mmap(
+        output_image_file, shape=stack_shape, mrc_mode=2, overwrite=True
+    )
     for idx, image_file in enumerate(image_files):
         mrc.data[idx] = read_mrc(image_file).astype(np.float32)
     mrc.reset_header_stats()

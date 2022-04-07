@@ -142,7 +142,7 @@ def _generate_tilt_image_dataframe(
 
     output_df = pd.DataFrame({
         'rlnTomoName': df['tilt_series_id'],
-        'rlnTomoTiltMovieFile': df['tilt_image_file'],
+        'rlnMicrographMovieName': df['tilt_image_file'],
         'rlnTomoTiltMovieFrameCount': df['num_sub_frames'],
         'rlnTomoTiltMovieIndex': df['z_value'],
         'rlnTomoNominalStageTiltAngle': df['tilt_angle'],
