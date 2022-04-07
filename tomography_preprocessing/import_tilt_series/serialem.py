@@ -12,7 +12,6 @@ from rich.progress import track
 from ._cli import cli
 from .. import utils
 
-
 console = rich.console.Console(record=True)
 
 
@@ -82,11 +81,11 @@ def import_tilt_series_from_serial_em(
     global_df = pd.DataFrame({
         'rlnTomoName': tomogram_ids,
         'rlnTomoTiltSeriesStarFile': tilt_series_star_files,
-        'rlnVoltage': [voltage],
-        'rlnSphericalAberration': [spherical_aberration],
-        'rlnAmplitudeContrast': [amplitude_contrast],
-        'rlnMicrographOriginalPixelSize': [nominal_pixel_size],
     })
+    global_df['rlnVoltage'] = voltage
+    global_df['rlnSphericalAberration'] = spherical_aberration
+    global_df['rlnAmplitudeContrast']: amplitude_contrast
+    global_df['rlnMicrographOriginalPixelSize']: nominal_pixel_size
     if mtf_file is not None:
         global_df['rlnMtfFileName'] = mtf_file
 
@@ -99,7 +98,8 @@ def import_tilt_series_from_serial_em(
 
     # Write out per tilt-series STAR files
     console.log('writing per tilt-series STAR files...')
-    for  tomogram_id, mdoc_file, output_filename in track(list(zip(tomogram_ids, mdoc_files, tilt_series_star_files))):
+    for tomogram_id, mdoc_file, output_filename in \
+            track(list(zip(tomogram_ids, mdoc_files, tilt_series_star_files))):
         tilt_image_df = _generate_tilt_image_dataframe(
             mdoc_file=mdoc_file,
             tilt_image_files=tilt_image_files,
