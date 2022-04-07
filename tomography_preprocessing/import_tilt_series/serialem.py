@@ -84,8 +84,8 @@ def import_tilt_series_from_serial_em(
     })
     global_df['rlnVoltage'] = voltage
     global_df['rlnSphericalAberration'] = spherical_aberration
-    global_df['rlnAmplitudeContrast']: amplitude_contrast
-    global_df['rlnMicrographOriginalPixelSize']: nominal_pixel_size
+    global_df['rlnAmplitudeContrast'] = amplitude_contrast
+    global_df['rlnMicrographOriginalPixelSize'] = nominal_pixel_size
     if mtf_file is not None:
         global_df['rlnMtfFileName'] = mtf_file
 
