@@ -3,7 +3,7 @@ from pathlib import Path
 from typing import List
 
 
-def basename(path: Path):
+def basename(path: Path) -> str:
     while path.stem != str(path):
         path = Path(path.stem)
     return path
