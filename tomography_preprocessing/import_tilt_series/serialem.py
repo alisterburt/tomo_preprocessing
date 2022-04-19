@@ -11,11 +11,13 @@ from rich.progress import track
 
 from ._cli import cli
 from .. import utils
+from ..utils.relion import relion_pipeline_job
 
 console = rich.console.Console(record=True)
 
 
 @cli.command(name='SerialEM')
+@relion_pipeline_job
 def import_tilt_series_from_serial_em(
         tilt_image_movie_pattern: str = typer.Option(...),
         mdoc_file_pattern: str = typer.Option(...),

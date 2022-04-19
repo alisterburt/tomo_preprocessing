@@ -1,6 +1,7 @@
-from typing import Callable
-from pathlib import Path
 import inspect
+from pathlib import Path
+from typing import Callable
+
 import makefun
 import typer
 
@@ -10,13 +11,6 @@ JOB_SUCCESS_FILENAME = 'RELION_JOB_EXIT_SUCCESS'
 JOB_FAILURE_FILENAME = 'RELION_JOB_EXIT_FAILURE'
 ABORT_JOB_NOW_FILENAME = 'RELION_JOB_ABORT_NOW'
 JOB_ABORTED_FILENAME = 'RELION_JOB_ABORTED'
-
-PIPELINE_CONTROL_KEYWORD_ARGUMENT = inspect.Parameter(
-    'pipeline_control',
-    kind=inspect.Parameter.KEYWORD_ONLY,
-    default=typer.Option(..., '--pipeline_control'),
-    annotation=Path,
-)
 
 
 def write_job_success_file(job_directory: Path) -> None:
@@ -49,6 +43,14 @@ def abort_job_if_necessary(job_directory: Path) -> None:
         _write_job_aborted_file(job_directory)
 
 
+PIPELINE_CONTROL_KEYWORD_ARGUMENT = inspect.Parameter(
+    'pipeline_control',
+    kind=inspect.Parameter.KEYWORD_ONLY,
+    default=typer.Option(None, '--pipeline_control'),
+    annotation=Path,
+)
+
+
 def relion_pipeline_job(func: Callable) -> Callable:
     """Decorator which turns a function into a RELION pipeline-aware job.
 
@@ -64,7 +66,7 @@ def relion_pipeline_job(func: Callable) -> Callable:
     )
 
     @makefun.wraps(func, new_sig=new_signature)
-    def inner(*args, **kwargs):
+    def job_func(*args, **kwargs):
         try:
             job_directory = kwargs.get('output_directory', None)
             func(*args, **kwargs)
@@ -74,5 +76,4 @@ def relion_pipeline_job(func: Callable) -> Callable:
             if job_directory is not None:
                 write_job_failure_file(job_directory)
 
-
-
+    return job_func
