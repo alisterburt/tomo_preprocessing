@@ -28,7 +28,7 @@ def import_tilt_series_from_serial_em(
         spherical_aberration: float = typer.Option(...),
         amplitude_contrast: float = typer.Option(...),
         dose_per_tilt_image: Optional[float] = None,
-        prefix: Optional[str] = None,
+        prefix: str = '',
         mtf_file: Optional[Path] = None,
 ) -> Path:
     """Import tilt-series data using SerialEM metadata.
