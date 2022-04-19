@@ -55,27 +55,19 @@ def get_xf_rotation_angles(xf: np.ndarray) -> np.ndarray:
 
 
 @lru_cache(maxsize=100)
-def get_stack_prefix(imod_directory: Path) -> str:
-    stem_counter = defaultdict(int)
-    for file in imod_directory.glob('*'):
-        stem_counter[file.stem] += 1
-
-    if len(stem_counter) == 0:
-        raise RuntimeError('no files found in IMOD directory')
-
-    max_count = 0
-    for stem in stem_counter:
-        if stem_counter[stem] > max_count:
-            max_count = stem_counter[stem]
-            highest_frequency_stem = stem
-    return highest_frequency_stem
+def get_etomo_basename(imod_directory: Path) -> str:
+    """Get the tilt-series stack basename from an Etomo directory."""
+    edf_files = list(imod_directory.glob('*.edf'))
+    if len(edf_files) != 1:
+        raise RuntimeError('singular Etomo directive file not found')
+    return edf_files[0].stem
 
 
 def get_xf_file(imod_directory: Path) -> Path:
     """Get the xf file containing image transforms from an IMOD directory."""
-    return imod_directory / f'{get_stack_prefix(imod_directory)}.xf'
+    return imod_directory / f'{get_etomo_basename(imod_directory)}.xf'
 
 
 def get_tlt_file(imod_directory: Path) -> Path:
     """Get the tlt file containing tilt angles from an IMOD directory."""
-    return imod_directory / f'{get_stack_prefix(imod_directory)}.xf'
+    return imod_directory / f'{get_etomo_basename(imod_directory)}.tlt'
