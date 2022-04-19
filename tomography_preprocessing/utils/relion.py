@@ -4,7 +4,7 @@ import inspect
 import makefun
 import typer
 
-from .io import write_empty_file
+from .file import write_empty_file
 
 JOB_SUCCESS_FILENAME = 'RELION_JOB_EXIT_SUCCESS'
 JOB_FAILURE_FILENAME = 'RELION_JOB_EXIT_FAILURE'

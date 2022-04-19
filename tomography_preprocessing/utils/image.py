@@ -4,7 +4,7 @@ from typing import List, Tuple
 import mrcfile
 import numpy as np
 
-from tomography_preprocessing.utils.io import read_mrc
+from tomography_preprocessing.utils.mrc import read_mrc
 
 
 def stack_image_files(image_files: List[os.PathLike], output_image_file: os.PathLike):
