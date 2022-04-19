@@ -5,10 +5,12 @@ from yet_another_imod_wrapper import run_fiducial_based_alignment as _run_fiduci
 
 from ._cli import cli
 from .. import utils
+from ..utils.relion import relion_pipeline_job
 from ..utils.star import iterate_tilt_series_metadata as _iterate_tilt_series_metadata
 
 
 @cli.command(name='IMOD:fiducials')
+@relion_pipeline_job
 def align_tilt_series_in_imod_using_fiducials(
         tilt_series_star_file: Path = typer.Option(...),
         output_directory: Path = typer.Option(...),
@@ -20,7 +22,7 @@ def align_tilt_series_in_imod_using_fiducials(
     imod_alignments_directory = output_directory / 'imod_alignments'
     imod_alignments_directory.mkdir(parents=True, exist_ok=True)
 
-    for tilt_series_id, optics_df, tilt_image_df in _iterate_tilt_series_metadata(
+    for tilt_series_id, tilt_series_df, tilt_image_df in _iterate_tilt_series_metadata(
             tilt_series_star_file):
         tilt_series_filename = f'{tilt_series_id}.mrc'
         tilt_series_path = tilt_series_directory / tilt_series_filename
@@ -39,9 +41,7 @@ def align_tilt_series_in_imod_using_fiducials(
         _run_fiducial_based_alignment(
             tilt_series_file=tilt_series_path,
             tilt_angles=tilt_image_df['rlnTomoNominalStageTiltAngle'],
-            pixel_size=utils.star.get_pixel_size(
-                optics_df, optics_group=optics_df['rlnOpticsGroup'][0]
-            ),
+            pixel_size=tilt_series_df['rlnMicrographOriginalPixelSize'],
             fiducial_size=nominal_fiducial_diameter_nanometres,
             nominal_rotation_angle=tilt_image_df['rlnTomoNominalTiltAxisAngle'][0],
             output_directory=imod_directory
