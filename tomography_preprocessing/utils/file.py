@@ -15,5 +15,3 @@ def glob(pattern: str) -> List[Path]:
 
 def write_empty_file(filename: os.PathLike) -> None:
     open(filename, mode='w').close()
-
-def get_
