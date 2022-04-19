@@ -17,10 +17,12 @@ def iterate_tilt_series_metadata(
 ) -> Iterable[_TiltSeriesMetadata]:
     """Iterate over metadata from a tilt series data STAR file."""
     star = starfile.read(tilt_series_star_file, always_dict=True)
-    for _, row in star['global'].iterrows():
-        tilt_series_id = row['rlnTomoName']
-        tilt_series_metadata = starfile.read(row['rlnTomoTiltSeriesStarFile'])
-        yield tilt_series_id, tilt_series_metadata['optics'], tilt_series_metadata['tilt_images']
+    for _, tilt_series_df in star['global'].iterrows():
+        tilt_series_id = tilt_series_df['rlnTomoName']
+        tilt_image_df = starfile.read(
+            tilt_series_df['rlnTomoTiltSeriesStarFile'], always_dict=True
+        )[tilt_series_id]
+        yield tilt_series_id, tilt_series_df, tilt_image_df
 
 
 def get_pixel_size(optics_df: pd.DataFrame, optics_group: int) -> float:
