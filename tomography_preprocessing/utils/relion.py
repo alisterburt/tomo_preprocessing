@@ -66,14 +66,16 @@ def relion_pipeline_job(func: Callable) -> Callable:
     )
 
     @makefun.wraps(func, new_sig=new_signature)
-    def job_func(*args, **kwargs):
+    def pipeline_job(*args, **kwargs):
+        job_directory = kwargs.get('output_directory', None)
+        if job_directory is not None:
+            job_directory.mkdir(parents=True, exist_ok=True)
         try:
-            job_directory = kwargs.get('output_directory', None)
+            kwargs.pop(PIPELINE_CONTROL_KEYWORD_ARGUMENT.name)
             func(*args, **kwargs)
             if job_directory is not None:
                 write_job_success_file(job_directory)
         except:
             if job_directory is not None:
                 write_job_failure_file(job_directory)
-
-    return job_func
+    return pipeline_job
