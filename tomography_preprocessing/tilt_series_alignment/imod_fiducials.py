@@ -1,12 +1,12 @@
 from pathlib import Path
 
 import typer
-from yet_another_imod_wrapper import run_fiducial_based_alignment as _run_fiducial_based_alignment
+from yet_another_imod_wrapper import run_fiducial_based_alignment
 
 from ._cli import cli
 from .. import utils
 from ..utils.relion import relion_pipeline_job
-from ..utils.star import iterate_tilt_series_metadata as _iterate_tilt_series_metadata
+from ..utils.star import iterate_tilt_series_metadata
 
 
 @cli.command(name='IMOD:fiducials')
@@ -22,7 +22,7 @@ def align_tilt_series_in_imod_using_fiducials(
     imod_alignments_directory = output_directory / 'imod_alignments'
     imod_alignments_directory.mkdir(parents=True, exist_ok=True)
 
-    for tilt_series_id, tilt_series_df, tilt_image_df in _iterate_tilt_series_metadata(
+    for tilt_series_id, tilt_series_df, tilt_image_df in iterate_tilt_series_metadata(
             tilt_series_star_file):
         tilt_series_filename = f'{tilt_series_id}.mrc'
         tilt_series_path = tilt_series_directory / tilt_series_filename
@@ -38,7 +38,7 @@ def align_tilt_series_in_imod_using_fiducials(
             image_files=tilt_image_df['rlnMicrographName'],
             output_image_file=tilt_series_path
         )
-        _run_fiducial_based_alignment(
+        run_fiducial_based_alignment(
             tilt_series_file=tilt_series_path,
             tilt_angles=tilt_image_df['rlnTomoNominalStageTiltAngle'],
             pixel_size=tilt_series_df['rlnMicrographOriginalPixelSize'],
