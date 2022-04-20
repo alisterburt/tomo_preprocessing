@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Tuple
+from typing import Tuple, Optional
 
 import typer
 from yet_another_imod_wrapper import run_patch_tracking_based_alignment
@@ -14,7 +14,7 @@ PATCH_TRACKING_COMMAND_NAME = 'IMOD:patch-tracking'
 def align_tilt_series_in_imod_using_patch_tracking(
         tilt_series_star_file: Path = typer.Option(...),
         output_directory: Path = typer.Option(...),
-        tomogram_name: str = typer.Option(..., '--tn'),
+        tomogram_name: Optional[str] = typer.Option(None, '--tn'),
         unbinned_patch_size_pixels: Tuple[int, int] = typer.Option(...),
         patch_overlap_percentage: float = typer.Option(...),
 ):
