@@ -26,15 +26,13 @@ def add_pre_exposure_dose(
 def add_tilt_image_files(
         mdoc_df: pd.DataFrame, tilt_image_files: List[PathLike]
 ) -> pd.DataFrame:
-    basename_filename_map = {
-        Path(f).stem: f
-        for f in tilt_image_files
-    }
+    basename_filename_map = {Path(f).stem: f for f in tilt_image_files}
     mdoc_tilt_image_basenames = get_tilt_image_basenames(mdoc_df["sub_frame_path"])
     mdoc_df["tilt_image_file"] = [
         basename_filename_map.get(basename, None)
         for basename in mdoc_tilt_image_basenames
     ]
+    mdoc_df = mdoc_df[mdoc_df["tilt_image_file"] != None]
     return mdoc_df
 
 
