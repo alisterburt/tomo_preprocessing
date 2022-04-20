@@ -30,7 +30,9 @@ def align_single_tilt_series_in_imod_using_patch_tracking(
     )
 
     tilt_series_filename = f'{tilt_series_id}.mrc'
+    tilt_image_metadata_filename = f'{tilt_series_id}.star'
     tilt_series_path = tilt_series_directory / tilt_series_filename
+    tilt_image_metadata_star_path = tilt_series_directory / tilt_image_metadata_filename
 
     imod_directory = imod_alignments_directory / tilt_series_id
     imod_directory.mkdir(exist_ok=True, parents=True)
@@ -52,4 +54,11 @@ def align_single_tilt_series_in_imod_using_patch_tracking(
         patch_size_xy=unbinned_patch_size_pixels,
         patch_overlap_percentage=patch_overlap_percentage,
         output_directory=imod_directory,
+    )
+    utils.imod.write_relion_tilt_series_alignment_output(
+        tilt_image_df=tilt_image_df,
+        tilt_series_id=tilt_series_id,
+        pixel_size=tilt_series_df['rlnMicrographOriginalPixelSize'],
+        imod_directory=imod_directory,
+        output_star_file=tilt_image_metadata_star_path
     )

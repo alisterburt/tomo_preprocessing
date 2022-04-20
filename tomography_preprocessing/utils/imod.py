@@ -1,9 +1,11 @@
 import os
-from collections import defaultdict
 from functools import lru_cache
 from pathlib import Path
+from typing import Tuple
 
 import numpy as np
+import pandas as pd
+import starfile
 
 
 def read_xf(file: os.PathLike) -> np.ndarray:
@@ -43,7 +45,7 @@ def get_xf_transformation_matrices(xf: np.ndarray) -> np.ndarray:
     return xf[:, :4].reshape((-1, 2, 2))
 
 
-def get_xf_rotation_angles(xf: np.ndarray) -> np.ndarray:
+def get_xf_in_plane_rotations(xf: np.ndarray) -> np.ndarray:
     """Extract the in plane rotation angle from IMOD xf data.
 
     Output is an (n, ) numpy array of angles in degrees. This function assumes
@@ -71,3 +73,35 @@ def get_xf_file(imod_directory: Path) -> Path:
 def get_tlt_file(imod_directory: Path) -> Path:
     """Get the tlt file containing tilt angles from an IMOD directory."""
     return imod_directory / f'{get_etomo_basename(imod_directory)}.tlt'
+
+
+def get_tilt_series_alignment_parameters(
+        imod_directory: Path
+) -> Tuple[np.ndarray, np.ndarray]:
+    """Get the tilt-series alignment parameters from an IMOD directory.
+
+    Shifts are in pixels and should be applied before rotations.
+    Rotations are ZYZ intrinsic Euler angles which transform the volume
+    """
+    xf = read_xf(get_xf_file(imod_directory))
+    shifts_px = get_xf_shifts(xf)
+    in_plane_rotations = get_xf_in_plane_rotations(xf)
+    tilt_angles = read_tlt(get_tlt_file(imod_directory))
+    euler_angles = np.zeros(shape=(len(tilt_angles), 3))
+    euler_angles[:, 1] = tilt_angles
+    euler_angles[:, 2] = in_plane_rotations
+    return shifts_px, euler_angles
+
+
+def write_relion_tilt_series_alignment_output(
+        tilt_image_df: pd.DataFrame,
+        tilt_series_id: str,
+        pixel_size: float,
+        imod_directory: Path,
+        output_star_file: Path,
+):
+    shifts_px, euler_angles = get_tilt_series_alignment_parameters(imod_directory)
+    tilt_image_df[['rlnOriginXAngst', 'rlnOriginYAngst']] = shifts_px * pixel_size
+    tilt_image_df[['rlnAngleRot', 'rlnAngleTilt', 'rlnAnglePsi']] = euler_angles
+    starfile.write({tilt_series_id: tilt_image_df}, output_star_file)
+
