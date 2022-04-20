@@ -13,7 +13,7 @@ FIDUCIAL_ALIGNMENT_COMMAND_NAME = 'IMOD:fiducials'
 def align_single_tilt_series_in_imod_using_fiducials(
         tilt_series_star_file: Path = typer.Option(...),
         output_directory: Path = typer.Option(...),
-        tomogram_name: str = typer.Option(...),
+        tomogram_name: str = typer.Option(..., '--tn'),
         nominal_fiducial_diameter_nanometres: float = typer.Option(...),
 ):
     tilt_series_directory = output_directory / 'tilt_series'
