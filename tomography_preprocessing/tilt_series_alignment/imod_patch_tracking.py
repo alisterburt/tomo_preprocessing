@@ -10,6 +10,7 @@ from ..utils.star import get_tilt_series_metadata
 
 PATCH_TRACKING_COMMAND_NAME = 'IMOD:patch-tracking'
 
+
 @cli.command(name=PATCH_TRACKING_COMMAND_NAME)
 def align_single_tilt_series_in_imod_using_patch_tracking(
     tilt_series_star_file: Path = typer.Option(...),
