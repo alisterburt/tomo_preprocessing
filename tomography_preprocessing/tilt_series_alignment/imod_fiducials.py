@@ -6,14 +6,17 @@ from yet_another_imod_wrapper import run_fiducial_based_alignment
 from ._cli import cli
 from .. import utils
 from ..utils.relion import relion_pipeline_job
-from ..utils.star import iterate_tilt_series_metadata
+from ..utils.star import get_tilt_series_metadata
+
+FIDUCIAL_ALIGNMENT_COMMAND_NAME = 'IMOD:fiducials'
 
 
-@cli.command(name='IMOD:fiducials')
+@cli.command(name=FIDUCIAL_ALIGNMENT_COMMAND_NAME)
 @relion_pipeline_job
-def align_tilt_series_in_imod_using_fiducials(
+def align_single_tilt_series_in_imod_using_fiducials(
         tilt_series_star_file: Path = typer.Option(...),
         output_directory: Path = typer.Option(...),
+        tomogram_name: str = typer.Option(...),
         nominal_fiducial_diameter_nanometres: float = typer.Option(...),
 ):
     tilt_series_directory = output_directory / 'tilt_series'
@@ -22,27 +25,30 @@ def align_tilt_series_in_imod_using_fiducials(
     imod_alignments_directory = output_directory / 'imod_alignments'
     imod_alignments_directory.mkdir(parents=True, exist_ok=True)
 
-    for tilt_series_id, tilt_series_df, tilt_image_df in iterate_tilt_series_metadata(
-            tilt_series_star_file):
-        tilt_series_filename = f'{tilt_series_id}.mrc'
-        tilt_series_path = tilt_series_directory / tilt_series_filename
-        imod_directory = imod_alignments_directory / tilt_series_id
-        imod_directory.mkdir(exist_ok=True, parents=True)
+    tilt_series_id, tilt_series_df, tilt_image_df = get_tilt_series_metadata(
+        tilt_series_star_file, tomogram_name
+    )
 
-        # Order is important in IMOD, sort by tilt angle
-        tilt_image_df = tilt_image_df.sort_values(by='rlnTomoNominalStageTiltAngle', ascending=True)
+    tilt_series_filename = f'{tilt_series_id}.mrc'
+    tilt_series_path = tilt_series_directory / tilt_series_filename
 
-        # Create tilt-series stack and align using IMOD
-        # implicit assumption - one tilt-axis angle per tilt-series
-        utils.image.stack_image_files(
-            image_files=tilt_image_df['rlnMicrographName'],
-            output_image_file=tilt_series_path
-        )
-        run_fiducial_based_alignment(
-            tilt_series_file=tilt_series_path,
-            tilt_angles=tilt_image_df['rlnTomoNominalStageTiltAngle'],
-            pixel_size=tilt_series_df['rlnMicrographOriginalPixelSize'],
-            fiducial_size=nominal_fiducial_diameter_nanometres,
-            nominal_rotation_angle=tilt_image_df['rlnTomoNominalTiltAxisAngle'][0],
-            output_directory=imod_directory
-        )
+    imod_directory = imod_alignments_directory / tilt_series_id
+    imod_directory.mkdir(exist_ok=True, parents=True)
+
+    # Order is important in IMOD, sort by tilt angle
+    tilt_image_df = tilt_image_df.sort_values(by='rlnTomoNominalStageTiltAngle', ascending=True)
+
+    # Create tilt-series stack and align using IMOD
+    # implicit assumption - one tilt-axis angle per tilt-series
+    utils.image.stack_image_files(
+        image_files=tilt_image_df['rlnMicrographName'],
+        output_image_file=tilt_series_path
+    )
+    run_fiducial_based_alignment(
+        tilt_series_file=tilt_series_path,
+        tilt_angles=tilt_image_df['rlnTomoNominalStageTiltAngle'],
+        pixel_size=tilt_series_df['rlnMicrographOriginalPixelSize'],
+        fiducial_size=nominal_fiducial_diameter_nanometres,
+        nominal_rotation_angle=tilt_image_df['rlnTomoNominalTiltAxisAngle'][0],
+        output_directory=imod_directory
+    )

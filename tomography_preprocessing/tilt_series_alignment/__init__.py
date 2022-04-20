@@ -1,3 +1,3 @@
-from .imod_fiducials import align_tilt_series_in_imod_using_fiducials
-from .imod_patch_tracking import align_tilt_series_in_imod_using_patch_tracking
+from .imod_fiducials import align_single_tilt_series_in_imod_using_fiducials
+from .imod_patch_tracking import align_single_tilt_series_in_imod_using_patch_tracking
 from ._cli import cli
