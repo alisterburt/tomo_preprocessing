@@ -6,7 +6,7 @@ from yet_another_imod_wrapper import run_patch_tracking_based_alignment
 
 from ._cli import cli
 from .. import utils
-from ..utils.star import get_tilt_series_metadata
+from ..utils.star import _extract_single_tilt_series_metadata
 
 PATCH_TRACKING_COMMAND_NAME = 'IMOD:patch-tracking'
 
@@ -25,7 +25,7 @@ def align_single_tilt_series_in_imod_using_patch_tracking(
     imod_alignments_directory = output_directory / 'imod_alignments'
     imod_alignments_directory.mkdir(parents=True, exist_ok=True)
 
-    tilt_series_id, tilt_series_df, tilt_image_df = get_tilt_series_metadata(
+    tilt_series_id, tilt_series_df, tilt_image_df = _extract_single_tilt_series_metadata(
         tilt_series_star_file, tomogram_name
     )
 
