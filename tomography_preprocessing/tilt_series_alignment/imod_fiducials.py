@@ -30,4 +30,9 @@ def align_tilt_series_in_imod_using_fiducials(
             alignment_function_kwargs={'fiducial_size': nominal_fiducial_diameter_nanometres},
             output_directory=output_directory,
         )
+    if tomogram_name is None:  # write out STAR file for set of tilt-series
+        utils.imod.write_aligned_tilt_series_star_file(
+            original_tilt_series_star_file=tilt_series_star_file,
+            output_directory=output_directory
+        )
 

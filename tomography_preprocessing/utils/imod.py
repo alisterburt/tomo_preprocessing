@@ -152,3 +152,24 @@ def align_single_tilt_series(
         imod_directory=imod_directory,
         output_star_file=tilt_image_metadata_star_path
     )
+
+
+def write_aligned_tilt_series_star_file(
+        original_tilt_series_star_file: Path,
+        output_directory: Path,
+):
+    df = starfile.read(original_tilt_series_star_file, always_dict=True)['global']
+    tilt_series_metadata = utils.star.iterate_tilt_series_metadata(
+        tilt_series_star_file=original_tilt_series_star_file
+    )
+    # update individual tilt series star files
+    tilt_series_star_files = [
+        output_directory / 'tilt_series' / f'{tilt_series_id}.star'
+        for tilt_series_id, _, _ in tilt_series_metadata
+    ]
+    df['rlnTomoTiltSeriesStarFile'] = tilt_series_star_files
+
+    # check which output files were succesfully generated, take only those
+    df = df[df['rlnTomoTiltSeriesStarFile'].apply(lambda x: x.exists())]
+
+    starfile.write({'global': df}, output_directory / 'aligned_tilt_series.star')
