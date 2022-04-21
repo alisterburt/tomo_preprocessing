@@ -164,9 +164,9 @@ def write_aligned_tilt_series_star_file(
         output_directory: Path,
 ):
     df = starfile.read(original_tilt_series_star_file, always_dict=True)['global']
-    tilt_series_metadata = utils.star.iterate_tilt_series_metadata(
+    tilt_series_metadata = list(utils.star.iterate_tilt_series_metadata(
         tilt_series_star_file=original_tilt_series_star_file
-    )
+    ))
     # update individual tilt series star files
     df['rlnTomoTiltSeriesStarFile'] = [
         output_directory / 'tilt_series' / f'{tilt_series_id}.star'
