@@ -8,6 +8,7 @@ import pandas as pd
 import starfile
 
 from .. import utils
+from ..utils.transformations import S, Rx, Ry, Rz
 
 
 def read_xf(file: os.PathLike) -> np.ndarray:
@@ -113,6 +114,44 @@ def write_relion_tilt_series_alignment_output(
     starfile.write({tilt_series_id: tilt_image_df}, output_star_file)
 
 
+def relion_tilt_series_alignment_to_relion_matrix(
+        shifts: np.ndarray,
+        euler_angles: np.ndarray,
+        tilt_image_dimensions: np.ndarray,
+        tomogram_dimensions: np.ndarray,
+):
+    x, y, z = tomogram_dimensions
+    tilt_image_center = (tilt_image_dimensions - 1) / 2
+    n_tilt_images = shifts.shape[0]
+    shifts = np.c_(shifts, np.zeros(n_tilt_images))  # promote (n, 2) to (n, 3)
+
+    ## Generate affine matrix components
+    # rotations
+    in_plane_rotation = Rz(euler_angles['rlnAnglePsi'])
+    tilt = Ry(euler_angles['rlnAngleTilt'])
+    Rx90 = Rx(-90)
+
+    # offsets
+    tomogram_offset_vector = -tomogram_dimensions / 2
+    tomogram_origin_offset = S(tomogram_offset_vector)
+    tilt_image_offset_vector = np.append(tilt_image_center, 0)
+
+    # compose matrices
+
+
+
+
+
+def create_job_directory_structure(output_directory: Path) -> Tuple[Path, Path]:
+    """Create directory structure for an IMOD alignment job."""
+    tilt_series_directory = output_directory / 'tilt_series'
+    tilt_series_directory.mkdir(parents=True, exist_ok=True)
+
+    imod_alignments_directory = output_directory / 'imod_alignments'
+    imod_alignments_directory.mkdir(parents=True, exist_ok=True)
+    return tilt_series_directory, imod_alignments_directory
+
+
 def align_single_tilt_series(
         tilt_series_id: str,
         tilt_series_df: pd.DataFrame,
@@ -121,13 +160,13 @@ def align_single_tilt_series(
         alignment_function_kwargs: Dict[str, Any],
         output_directory: Path,
 ):
-    # create output directory structure
-    tilt_series_directory = output_directory / 'tilt_series'
-    imod_alignments_directory = output_directory / 'imod_alignments'
+    # Create output directory structure
+    tilt_series_directory, imod_alignments_directory = \
+        create_job_directory_structure(output_directory)
     imod_directory = imod_alignments_directory / tilt_series_id
-    tilt_series_directory.mkdir(parents=True, exist_ok=True)
     imod_directory.mkdir(parents=True, exist_ok=True)
 
+    # Establish filenames
     tilt_series_filename = f'{tilt_series_id}.mrc'
     tilt_image_metadata_filename = f'{tilt_series_id}.star'
     tilt_series_path = tilt_series_directory / tilt_series_filename
