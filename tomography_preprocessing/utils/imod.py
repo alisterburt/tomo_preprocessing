@@ -168,11 +168,14 @@ def write_aligned_tilt_series_star_file(
         tilt_series_star_file=original_tilt_series_star_file
     )
     # update individual tilt series star files
-    tilt_series_star_files = [
+    df['rlnTomoTiltSeriesStarFile'] = [
         output_directory / 'tilt_series' / f'{tilt_series_id}.star'
         for tilt_series_id, _, _ in tilt_series_metadata
     ]
-    df['rlnTomoTiltSeriesStarFile'] = tilt_series_star_files
+    df['EtomoDirectiveFile'] = [
+        output_directory / 'imod_alignments' / f'{tilt_series_id}.edf'
+        for tilt_series_id, _, _ in tilt_series_metadata
+    ]
 
     # check which output files were succesfully generated, take only those
     df = df[df['rlnTomoTiltSeriesStarFile'].apply(lambda x: x.exists())]
