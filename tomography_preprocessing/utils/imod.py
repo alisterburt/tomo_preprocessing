@@ -77,6 +77,11 @@ def get_tlt_file(imod_directory: Path) -> Path:
     return imod_directory / f'{get_etomo_basename(imod_directory)}.tlt'
 
 
+def get_edf_file(imod_directory: Path) -> Path:
+    """Get the Etomo directive file from an IMOD directory."""
+    return imod_directory / f'{get_etomo_basename(imod_directory)}.edf'
+
+
 def get_tilt_series_alignment_parameters(
         imod_directory: Path
 ) -> Tuple[np.ndarray, np.ndarray]:
