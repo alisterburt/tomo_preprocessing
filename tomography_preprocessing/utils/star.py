@@ -11,6 +11,7 @@ if TYPE_CHECKING:
     import os
     from typing import Iterable
 
+# (tilt_series_id, tilt_series_df, tilt_image_df)
 TiltSeriesMetadata = Tuple[str, pd.DataFrame, pd.DataFrame]
 
 

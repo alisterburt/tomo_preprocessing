@@ -111,35 +111,37 @@ def write_relion_tilt_series_alignment_output(
     shifts_px, euler_angles = get_tilt_series_alignment_parameters(imod_directory)
     tilt_image_df[['rlnOriginXAngst', 'rlnOriginYAngst']] = shifts_px * pixel_size
     tilt_image_df[['rlnAngleRot', 'rlnAngleTilt', 'rlnAnglePsi']] = euler_angles
+
     starfile.write({tilt_series_id: tilt_image_df}, output_star_file)
 
 
-def relion_tilt_series_alignment_to_relion_matrix(
-        shifts: np.ndarray,
-        euler_angles: np.ndarray,
+def relion_tilt_series_alignment_parameters_to_relion_matrix(
+        shifts: pd.DataFrame,
+        euler_angles: pd.DataFrame,
         tilt_image_dimensions: np.ndarray,
         tomogram_dimensions: np.ndarray,
 ):
-    x, y, z = tomogram_dimensions
+    """shifts need to be in px at this point"""
     tilt_image_center = (tilt_image_dimensions - 1) / 2
     n_tilt_images = shifts.shape[0]
-    shifts = np.c_(shifts, np.zeros(n_tilt_images))  # promote (n, 2) to (n, 3)
+    shifts = np.c_[shifts, np.zeros(n_tilt_images)]  # zero-fill (n, 2) to (n, 3)
+    tomogram_center_to_origin = -tomogram_dimensions / 2
+    tilt_image_corner_to_center_vector = np.append(tilt_image_center, 0)
 
-    ## Generate affine matrix components
-    # rotations
+    # Generate affine matrices for each component of the final transformation
+    # first the rotations
     in_plane_rotation = Rz(euler_angles['rlnAnglePsi'])
     tilt = Ry(euler_angles['rlnAngleTilt'])
-    Rx90 = Rx(-90)
 
     # offsets
-    tomogram_offset_vector = -tomogram_dimensions / 2
-    tomogram_origin_offset = S(tomogram_offset_vector)
-    tilt_image_offset_vector = np.append(tilt_image_center, 0)
+    tomogram_origin_offset = S(tomogram_center_to_origin)
+    tilt_image_corner_to_center = S(tilt_image_corner_to_center_vector)
+    tilt_image_centering_shift = S(shifts)
 
     # compose matrices
-
-
-
+    volume_transforms = in_plane_rotation @ tilt @ tomogram_origin_offset
+    image_transforms = tilt_image_corner_to_center @ tilt_image_centering_shift
+    return np.squeeze(image_transforms @ volume_transforms)
 
 
 def create_job_directory_structure(output_directory: Path) -> Tuple[Path, Path]:
