@@ -116,17 +116,20 @@ def write_relion_tilt_series_alignment_output(
 
 
 def relion_tilt_series_alignment_parameters_to_relion_matrix(
-        shifts: pd.DataFrame,
+        tilt_image_shifts: pd.DataFrame,
         euler_angles: pd.DataFrame,
         tilt_image_dimensions: np.ndarray,
         tomogram_dimensions: np.ndarray,
 ):
     """shifts need to be in px at this point"""
     tilt_image_center = (tilt_image_dimensions - 1) / 2
-    n_tilt_images = shifts.shape[0]
-    shifts = np.c_[shifts, np.zeros(n_tilt_images)]  # zero-fill (n, 2) to (n, 3)
-    tomogram_center_to_origin = -tomogram_dimensions / 2
-    tilt_image_corner_to_center_vector = np.append(tilt_image_center, 0)
+    tilt_image_center = np.append(tilt_image_center, 0)
+    tomogram_center = tomogram_dimensions / 2
+    n_tilt_images = tilt_image_shifts.shape[0]
+    tomogram_origin_to_tilt_image_origin = tomogram_center - tilt_image_center
+
+    # zero-fill shifts (n, 2) to (n, 3)
+    tilt_image_shifts = np.c_[tilt_image_shifts, np.zeros(n_tilt_images)]
 
     # Generate affine matrices for each component of the final transformation
     # first the rotations
@@ -134,13 +137,14 @@ def relion_tilt_series_alignment_parameters_to_relion_matrix(
     tilt = Ry(euler_angles['rlnAngleTilt'])
 
     # offsets
-    tomogram_origin_offset = S(tomogram_center_to_origin)
-    tilt_image_corner_to_center = S(tilt_image_corner_to_center_vector)
-    tilt_image_centering_shift = S(shifts)
+    tomogram_center_to_origin = S(-tomogram_center)
+    tomogram_origin_to_center = S(tomogram_center)
+    tilt_image_centering_shift = S(tilt_image_shifts)
+    tomogram_projection_to_tilt_image = S(tomogram_origin_to_tilt_image_origin)
 
     # compose matrices
-    volume_transforms = in_plane_rotation @ tilt @ tomogram_origin_offset
-    image_transforms = tilt_image_corner_to_center @ tilt_image_centering_shift
+    volume_transforms = tomogram_origin_to_center @ in_plane_rotation @ tilt @ tomogram_center_to_origin
+    image_transforms = tomogram_projection_to_tilt_image @ tilt_image_centering_shift
     return np.squeeze(image_transforms @ volume_transforms)
 
 

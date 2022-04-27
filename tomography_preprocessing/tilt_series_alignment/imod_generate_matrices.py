@@ -28,7 +28,7 @@ def generate_imod_matrices(
         shifts = tilt_image_df[['rlnOriginXAngst', 'rlnOriginYAngst']]
         shifts /= tilt_series_df['rlnMicrographOriginalPixelSize']
         matrices = utils.imod.relion_tilt_series_alignment_parameters_to_relion_matrix(
-            shifts=shifts,
+            tilt_image_shifts=shifts,
             euler_angles=euler_angles,
             tilt_image_dimensions=utils.mrc.get_image_dimensions(tilt_image_df['rlnMicrographName'][0])[:2],
             tomogram_dimensions=np.array(tomogram_dimensions)
@@ -46,6 +46,7 @@ def generate_imod_matrices(
 
     star = starfile.read(tilt_series_star_file, always_dict=True)
     star['global']['rlnTomoTiltSeriesStarFile'] = tilt_image_star_files
+    star['global'][['rlnTomoSizeX', 'rlnTomoSizeY', 'rlnTomoSizeZ']] = tomogram_dimensions
     starfile.write(star, output_directory / 'aligned_tilt_series_with_matrices.star')
 
 
