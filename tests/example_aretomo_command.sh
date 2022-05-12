@@ -1,0 +1,1 @@
+relion_tomo_align_tilt_series AreTomo --tilt-series-star-file ImportTomo/job001/tilt_series.star --output-directory test_output/ --exe /s/ems/s/AreTomo/v1.1.0/AreTomo_1.1.0_Cuda114_03-24-2022 --local-align
