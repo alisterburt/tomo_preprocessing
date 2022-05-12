@@ -1,4 +1,5 @@
 from .imod_fiducials import align_tilt_series_in_imod_using_fiducials
 from .imod_patch_tracking import align_tilt_series_in_imod_using_patch_tracking
 from .imod_generate_matrices import generate_imod_matrices
+from .aretomo import aretomo_function
 from ._cli import cli
