@@ -9,7 +9,6 @@ from .. import utils
 
 ARETOMO_ALIGNMENT_COMMAND_NAME = 'AreTomo'
 
-
 @cli.command(name=ARETOMO_ALIGNMENT_COMMAND_NAME)
 def aretomo_function(
         tilt_series_star_file: Path = typer.Option(...),
@@ -27,7 +26,7 @@ def aretomo_function(
         tilt_series_id=tomogram_name
     )
     for tilt_series_id, tilt_series_df, tilt_image_df in tilt_series_metadata:
-        utils.imod.align_single_tilt_series(
+        utils.aretomo.align_single_tilt_series(
             tilt_series_id=tilt_series_id,
             tilt_series_df=tilt_series_df,
             tilt_image_df=tilt_image_df,
@@ -42,7 +41,7 @@ def aretomo_function(
             output_directory=output_directory,
         )
     if tomogram_name is None:  # write out STAR file for set of tilt-series
-        utils.imod.write_aligned_tilt_series_star_file(
+        utils.aretomo.write_aligned_tilt_series_star_file(
             original_tilt_series_star_file=tilt_series_star_file,
             output_directory=output_directory
         )
