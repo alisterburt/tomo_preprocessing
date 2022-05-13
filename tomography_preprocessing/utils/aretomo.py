@@ -124,7 +124,13 @@ def align_single_tilt_series(
         tilt_series_df: pd.DataFrame,
         tilt_image_df: pd.DataFrame,
         alignment_function: Callable,
-        alignment_function_kwargs: Dict[str, Any],
+        aretomo_executable: Path,
+        local_align: bool,
+        target_pixel_size: float,
+        n_patches_x: float,
+        n_patches_y: float,
+        correct_tilt_angle_offset: bool,
+        thickness_for_alignment:float,
         output_directory: Path,
 ):
     # Create output directory structure
@@ -154,7 +160,13 @@ def align_single_tilt_series(
         pixel_size=tilt_series_df['rlnMicrographOriginalPixelSize'],
         nominal_rotation_angle=tilt_image_df['rlnTomoNominalTiltAxisAngle'][0],
         output_directory=imod_directory,
-        **alignment_function_kwargs
+        aretomo_executable=aretomo_executable,
+        local_align=local_align,
+        target_pixel_size=target_pixel_size,
+        n_patches_x=n_patches_x,
+        n_patches_y=n_patches_y,
+        correct_tilt_angle_offset=correct_tilt_angle_offset,
+        thickness_for_alignment=thickness_for_alignment,
     )    
     utils.aretomo.write_relion_tilt_series_alignment_output(
         tilt_image_df=tilt_image_df,

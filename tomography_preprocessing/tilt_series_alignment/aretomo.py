@@ -34,14 +34,13 @@ def aretomo_function(
             tilt_series_df=tilt_series_df,
             tilt_image_df=tilt_image_df,
             alignment_function=run_aretomo_alignment,
-            alignment_function_kwargs={'aretomo_executable': aretomo_executable,
-	    'local_align': local_align,
-	    'target_pixel_size': target_pixel_size,
-	    'n_patches_x': n_patches_x,
-	    'n_patches_y': n_patches_y,
-	    'correct_tilt_angle_offset': correct_tilt_angle_offset,
-            'thickness_for_alignment': thickness_for_alignment
-	    },
+            aretomo_executable=aretomo_executable,
+	    local_align=local_align,
+	    target_pixel_size=target_pixel_size,
+	    n_patches_x=n_patches_x,
+	    n_patches_y=n_patches_y,
+	    correct_tilt_angle_offset=correct_tilt_angle_offset,
+            thickness_for_alignment=thickness_for_alignment,
             output_directory=output_directory,
         )
     if tomogram_name is None:  # write out STAR file for set of tilt-series
