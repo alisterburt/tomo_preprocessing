@@ -6,10 +6,12 @@ from lil_aretomo.aretomo import run_aretomo_alignment
 
 from ._cli import cli
 from .. import utils
+from ..utils.relion import relion_pipeline_job
 
 ARETOMO_ALIGNMENT_COMMAND_NAME = 'AreTomo'
 
 @cli.command(name=ARETOMO_ALIGNMENT_COMMAND_NAME)
+@relion_pipeline_job
 def aretomo_function(
         tilt_series_star_file: Path = typer.Option(...),
         output_directory: Path = typer.Option(...),
