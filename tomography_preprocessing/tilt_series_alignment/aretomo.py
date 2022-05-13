@@ -15,12 +15,13 @@ ARETOMO_ALIGNMENT_COMMAND_NAME = 'AreTomo'
 def aretomo_function(
         tilt_series_star_file: Path = typer.Option(...),
         output_directory: Path = typer.Option(...),
-        exe: Path = typer.Option(...),	
+        aretomo_executable: Path = typer.Option(...),	
         local_align: Optional[bool] = typer.Option(False),
         target_pixel_size: Optional[float] = typer.Option(10),
-        patch_in_x: Optional[float] = typer.Option(5),
-        patch_in_y: Optional[float] = typer.Option(4),
+        n_patches_x: Optional[float] = typer.Option(5),
+        n_patches_y: Optional[float] = typer.Option(4),
         correct_tilt_angle_offset: Optional[bool] = typer.Option(False),
+        thickness_for_alignment: Optional[float] = typer.Option(800),	
         tomogram_name: Optional[str] = typer.Option(None)
 ):
     tilt_series_metadata = utils.star.iterate_tilt_series_metadata(
@@ -33,12 +34,13 @@ def aretomo_function(
             tilt_series_df=tilt_series_df,
             tilt_image_df=tilt_image_df,
             alignment_function=run_aretomo_alignment,
-            alignment_function_kwargs={'exe': exe,
+            alignment_function_kwargs={'aretomo_executable': aretomo_executable,
 	    'local_align': local_align,
 	    'target_pixel_size': target_pixel_size,
-	    'patch_in_x': patch_in_x,
-	    'patch_in_y': patch_in_y,
-	    'correct_tilt_angle_offset': correct_tilt_angle_offset
+	    'n_patches_x': n_patches_x,
+	    'n_patches_y': n_patches_y,
+	    'correct_tilt_angle_offset': correct_tilt_angle_offset,
+            'thickness_for_alignment': thickness_for_alignment
 	    },
             output_directory=output_directory,
         )
