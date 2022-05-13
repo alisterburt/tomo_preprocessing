@@ -10,21 +10,7 @@ import starfile
 from .. import utils
 from ..utils.transformations import S, Rx, Ry, Rz
 
-def read_tlt(file: os.PathLike) -> np.ndarray:
-    """Read an IMOD tlt file into an (n, ) numpy array."""
-    return np.loadtxt(fname=file, dtype=float).reshape(-1)
-
 @lru_cache(maxsize=100)
-
-def get_xf_file(imod_directory: Path, tilt_series_id: str) -> Path:
-    """Get the xf file containing image transforms from an IMOD directory."""
-    return imod_directory / f'{tilt_series_id}.xf'
-
-
-def get_tlt_file(imod_directory: Path, tilt_series_id: str) -> Path:
-    """Get the tlt file containing tilt angles from an IMOD directory."""
-    return imod_directory / f'{tilt_series_id}.tlt'
-
 
 def get_tilt_series_alignment_parameters(
         imod_directory: Path,
@@ -35,8 +21,8 @@ def get_tilt_series_alignment_parameters(
     Shifts are in pixels and should be applied before rotations.
     Rotations are ZYZ intrinsic Euler angles which transform the volume
     """
-    tilt_angles = read_tlt(get_tlt_file(imod_directory,tilt_series_id))  
-    xf = utils.imod.read_xf(get_xf_file(imod_directory,tilt_series_id))
+    tilt_angles = utils.imod.read_tlt(imod_directory / f'{tilt_series_id}.tlt')  
+    xf = utils.imod.read_xf(imod_directory / f'{tilt_series_id}.xf')
     shifts_px = utils.imod.get_xf_shifts(xf)
     in_plane_rotations = utils.imod.get_xf_in_plane_rotations(xf)
     euler_angles = np.zeros(shape=(len(tilt_angles), 3))
@@ -78,35 +64,6 @@ def write_relion_tilt_series_alignment_output(
     tilt_image_df[['rlnAngleRot', 'rlnAngleTilt', 'rlnAnglePsi']] = euler_angles
 
     starfile.write({tilt_series_id: tilt_image_df}, output_star_file)
-
-
-def relion_tilt_series_alignment_parameters_to_relion_matrix(
-        shifts: pd.DataFrame,
-        euler_angles: pd.DataFrame,
-        tilt_image_dimensions: np.ndarray,
-        tomogram_dimensions: np.ndarray,
-):
-    """shifts need to be in px at this point"""
-    tilt_image_center = (tilt_image_dimensions - 1) / 2
-    n_tilt_images = shifts.shape[0]
-    shifts = np.c_[shifts, np.zeros(n_tilt_images)]  # zero-fill (n, 2) to (n, 3)
-    tomogram_center_to_origin = -tomogram_dimensions / 2
-    tilt_image_corner_to_center_vector = np.append(tilt_image_center, 0)
-
-    # Generate affine matrices for each component of the final transformation
-    # first the rotations
-    in_plane_rotation = Rz(euler_angles['rlnAnglePsi'])
-    tilt = Ry(euler_angles['rlnAngleTilt'])
-
-    # offsets
-    tomogram_origin_offset = S(tomogram_center_to_origin)
-    tilt_image_corner_to_center = S(tilt_image_corner_to_center_vector)
-    tilt_image_centering_shift = S(shifts)
-
-    # compose matrices
-    volume_transforms = in_plane_rotation @ tilt @ tomogram_origin_offset
-    image_transforms = tilt_image_corner_to_center @ tilt_image_centering_shift
-    return np.squeeze(image_transforms @ volume_transforms)
 
 
 def create_job_directory_structure(output_directory: Path) -> Tuple[Path, Path]:
@@ -176,22 +133,3 @@ def align_single_tilt_series(
         output_star_file=tilt_image_metadata_star_path
     )
 
-
-def write_aligned_tilt_series_star_file(
-        original_tilt_series_star_file: Path,
-        output_directory: Path,
-):
-    df = starfile.read(original_tilt_series_star_file, always_dict=True)['global']
-    tilt_series_metadata = list(utils.star.iterate_tilt_series_metadata(
-        tilt_series_star_file=original_tilt_series_star_file
-    ))
-    # update individual tilt series star files
-    df['rlnTomoTiltSeriesStarFile'] = [
-        output_directory / 'tilt_series' / f'{tilt_series_id}.star'
-        for tilt_series_id, _, _ in tilt_series_metadata
-    ]
-
-    # check which output files were succesfully generated, take only those
-    df = df[df['rlnTomoTiltSeriesStarFile'].apply(lambda x: x.exists())]
-
-    starfile.write({'global': df}, output_directory / 'aligned_tilt_series.star')
