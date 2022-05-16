@@ -106,3 +106,6 @@ ENV/
 
 # test data
 test_output/
+
+# version
+tomography_preprocessing/_version.py
