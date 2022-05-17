@@ -10,7 +10,7 @@ from .. import utils
 
 
 def get_tilt_series_alignment_parameters(
-        imod_directory: Path,
+        alignment_directory: Path,
         tilt_series_id: str
 ) -> Tuple[np.ndarray, np.ndarray]:
     """Get the tilt-series alignment parameters from an IMOD directory.
@@ -18,9 +18,9 @@ def get_tilt_series_alignment_parameters(
     Shifts are in pixels and should be applied before rotations.
     Rotations are ZYZ intrinsic Euler angles which transform the volume
     """
-    tilt_angles = utils.imod.read_tlt(imod_directory / f'{tilt_series_id}.tlt')
-    xf = utils.imod.read_xf(imod_directory / f'{tilt_series_id}.xf')
-    shifts_px = utils.imod.get_xf_shifts(xf)
+    tilt_angles = utils.imod.read_tlt(alignment_directory / f'{tilt_series_id}.tlt')
+    xf = utils.imod.read_xf(alignment_directory / f'{tilt_series_id}.xf')
+    shifts_px = utils.imod.get_pre_rotation_shifts(xf)
     in_plane_rotations = utils.imod.get_xf_in_plane_rotations(xf)
     euler_angles = np.zeros(shape=(len(tilt_angles), 3))
     euler_angles[:, 1] = tilt_angles

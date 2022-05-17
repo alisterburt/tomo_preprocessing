@@ -29,7 +29,7 @@ def read_tlt(file: os.PathLike) -> np.ndarray:
     return np.loadtxt(fname=file, dtype=float).reshape(-1)
 
 
-def get_xf_shifts(xf: np.ndarray) -> np.ndarray:
+def get_pre_rotation_shifts(xf: np.ndarray) -> np.ndarray:
     """Extract XY shifts from IMOD xf data.
 
     Output is an (n, 2) numpy array of shifts which center tilt-images.
@@ -92,7 +92,7 @@ def get_tilt_series_alignment_parameters(
     Rotations are ZYZ intrinsic Euler angles which transform the volume
     """
     xf = read_xf(get_xf_file(imod_directory))
-    shifts_px = get_xf_shifts(xf)
+    shifts_px = get_pre_rotation_shifts(xf)
     in_plane_rotations = get_xf_in_plane_rotations(xf)
     tilt_angles = read_tlt(get_tlt_file(imod_directory))
     euler_angles = np.zeros(shape=(len(tilt_angles), 3))
