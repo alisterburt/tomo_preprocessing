@@ -6,9 +6,11 @@ from typing import Tuple, Callable, Dict, Any
 import numpy as np
 import pandas as pd
 import starfile
+import rich
 
 from .. import utils
 from ..utils.transformations import S, Rx, Ry, Rz
+from rich.progress import track
 
 @lru_cache(maxsize=100)
 
@@ -79,6 +81,7 @@ def align_single_tilt_series(
         thickness_for_alignment:float,
         output_directory: Path,
 ):
+    console = rich.console.Console(record=True)
     # Create output directory structure
     tilt_series_directory, imod_alignments_directory = \
         utils.imod.create_job_directory_structure(output_directory)
@@ -96,10 +99,12 @@ def align_single_tilt_series(
 
     # Create tilt-series stack and align using IMOD
     # implicit assumption - one tilt-axis angle per tilt-series
+    console.log('Creating tilt series stack')
     utils.image.stack_image_files(
         image_files=tilt_image_df['rlnMicrographName'],
         output_image_file=tilt_series_path
     )
+    console.log('Running AreTomo')
     alignment_function(
         tilt_series_file=tilt_series_path,
         tilt_angles=tilt_image_df['rlnTomoNominalStageTiltAngle'],
@@ -112,7 +117,8 @@ def align_single_tilt_series(
         n_patches_xy=n_patches_xy,
         correct_tilt_angle_offset=correct_tilt_angle_offset,
         thickness_for_alignment=thickness_for_alignment,
-    )    
+    )
+    console.log('Writing alignment .star')    
     utils.aretomo.write_relion_tilt_series_alignment_output(
         tilt_image_df=tilt_image_df,
         tilt_series_id=tilt_series_id,

@@ -217,8 +217,9 @@ def write_aligned_tilt_series_star_file(
 	output_directory / 'alignments' / tilt_series_id / f'{tilt_series_id}.edf'
         for tilt_series_id, _, _ in tilt_series_metadata
     ]
-
+    etomo_dir_exist = any(df['EtomoDirectiveFile'].apply(lambda x: Path(x).exists()))
+    if etomo_dir_exist is False:
+        df = df.drop(columns=['EtomoDirectiveFile'])
     # check which output files were succesfully generated, take only those
     df = df[df['rlnTomoTiltSeriesStarFile'].apply(lambda x: x.exists())]
-
     starfile.write({'global': df}, output_directory / 'aligned_tilt_series.star')
