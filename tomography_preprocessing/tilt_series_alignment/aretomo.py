@@ -2,15 +2,18 @@ from pathlib import Path
 from typing import Optional
 
 import typer
-from lil_aretomo.aretomo import run_aretomo_alignment
+import rich
+import sys
 
+from lil_aretomo.aretomo import run_aretomo_alignment
 from ._cli import cli
 from .. import utils
 from ..utils.relion import relion_pipeline_job
+from rich.progress import track
 
-ARETOMO_ALIGNMENT_COMMAND_NAME = 'AreTomo'
+console = rich.console.Console(record=True)
 
-@cli.command(name=ARETOMO_ALIGNMENT_COMMAND_NAME)
+@cli.command(name='AreTomo')
 @relion_pipeline_job
 def aretomo_function(
         tilt_series_star_file: Path = typer.Option(...),
@@ -23,11 +26,14 @@ def aretomo_function(
         thickness_for_alignment: Optional[float] = typer.Option(800),	
         tomogram_name: Optional[str] = typer.Option(None)
 ):
+    console.log('Extracting metadata for all tilt series.')
     tilt_series_metadata = utils.star.iterate_tilt_series_metadata(
         tilt_series_star_file=tilt_series_star_file,
         tilt_series_id=tomogram_name
     )
     for tilt_series_id, tilt_series_df, tilt_image_df in tilt_series_metadata:
+        console.log(f'Aligning {tilt_series_id}...')
+        	
         utils.aretomo.align_single_tilt_series(
             tilt_series_id=tilt_series_id,
             tilt_series_df=tilt_series_df,
@@ -42,8 +48,9 @@ def aretomo_function(
             output_directory=output_directory,
         )
     if tomogram_name is None:  # write out STAR file for set of tilt-series
-        utils.aretomo.write_aligned_tilt_series_star_file(
+        console.log('Writing aligned_tilt_series.star')
+        utils.imod.write_aligned_tilt_series_star_file(
             original_tilt_series_star_file=tilt_series_star_file,
             output_directory=output_directory
         )
-
+    
