@@ -66,16 +66,6 @@ def write_relion_tilt_series_alignment_output(
     starfile.write({tilt_series_id: tilt_image_df}, output_star_file)
 
 
-def create_job_directory_structure(output_directory: Path) -> Tuple[Path, Path]:
-    """Create directory structure for an AreTomo alignment job."""
-    tilt_series_directory = output_directory / 'tilt_series'
-    tilt_series_directory.mkdir(parents=True, exist_ok=True)
-
-    imod_alignments_directory = output_directory / 'aretomo_alignments'
-    imod_alignments_directory.mkdir(parents=True, exist_ok=True)
-    return tilt_series_directory, imod_alignments_directory
-
-
 def align_single_tilt_series(
         tilt_series_id: str,
         tilt_series_df: pd.DataFrame,
@@ -91,7 +81,7 @@ def align_single_tilt_series(
 ):
     # Create output directory structure
     tilt_series_directory, imod_alignments_directory = \
-        create_job_directory_structure(output_directory)
+        utils.imod.create_job_directory_structure(output_directory)
     imod_directory = imod_alignments_directory / tilt_series_id
     imod_directory.mkdir(parents=True, exist_ok=True)
 
