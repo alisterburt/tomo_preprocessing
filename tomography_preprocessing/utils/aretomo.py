@@ -1,18 +1,14 @@
-import os
-from functools import lru_cache
 from pathlib import Path
-from typing import Tuple, Callable, Dict, Any
+from pathlib import Path
+from typing import Tuple, Callable
 
 import numpy as np
 import pandas as pd
-import starfile
 import rich
+import starfile
 
 from .. import utils
-from ..utils.transformations import S, Rx, Ry, Rz
-from rich.progress import track
 
-@lru_cache(maxsize=100)
 
 def get_tilt_series_alignment_parameters(
         imod_directory: Path,
@@ -23,7 +19,7 @@ def get_tilt_series_alignment_parameters(
     Shifts are in pixels and should be applied before rotations.
     Rotations are ZYZ intrinsic Euler angles which transform the volume
     """
-    tilt_angles = utils.imod.read_tlt(imod_directory / f'{tilt_series_id}.tlt')  
+    tilt_angles = utils.imod.read_tlt(imod_directory / f'{tilt_series_id}.tlt')
     xf = utils.imod.read_xf(imod_directory / f'{tilt_series_id}.xf')
     shifts_px = utils.imod.get_xf_shifts(xf)
     in_plane_rotations = utils.imod.get_xf_in_plane_rotations(xf)
@@ -34,19 +30,19 @@ def get_tilt_series_alignment_parameters(
 
 
 def remove_ignored_images(
-    tilt_image_df: pd.DataFrame, 
-    euler_angles: np.ndarray
+        tilt_image_df: pd.DataFrame,
+        euler_angles: np.ndarray
 ) -> pd.DataFrame:
     """Detect the images removed from the tilt series by AreTomo (due to poor alignment) and remove them from
     the image stack and star file
     """
     star_angles = tilt_image_df['rlnTomoNominalStageTiltAngle']
-    tlt_angles = euler_angles[:,1]
+    tlt_angles = euler_angles[:, 1]
     idx_min = []
     for angle in tlt_angles:
         arr_diff = abs(star_angles - angle)
-        #If difference between nominal tilt and tlt file is less than 0.5, assume same tilt
-        if np.min(arr_diff) < 0.5:	
+        # If difference between nominal tilt and tlt file is less than 0.5, assume same tilt
+        if np.min(arr_diff) < 0.5:
             idx_min.append(np.argmin(arr_diff))
     complete_df = tilt_image_df.copy()
     complete_df = complete_df.iloc[idx_min]
@@ -76,9 +72,9 @@ def align_single_tilt_series(
         aretomo_executable: Path,
         local_align: bool,
         target_pixel_size: float,
-        n_patches_xy: tuple[int,int],
+        n_patches_xy: tuple[int, int],
         correct_tilt_angle_offset: bool,
-        thickness_for_alignment:float,
+        thickness_for_alignment: float,
         output_directory: Path,
 ):
     console = rich.console.Console(record=True)
@@ -118,7 +114,7 @@ def align_single_tilt_series(
         correct_tilt_angle_offset=correct_tilt_angle_offset,
         thickness_for_alignment=thickness_for_alignment,
     )
-    console.log('Writing alignment .star')    
+    console.log('Writing alignment .star')
     utils.aretomo.write_relion_tilt_series_alignment_output(
         tilt_image_df=tilt_image_df,
         tilt_series_id=tilt_series_id,
@@ -126,4 +122,3 @@ def align_single_tilt_series(
         imod_directory=imod_directory,
         output_star_file=tilt_image_metadata_star_path
     )
-
