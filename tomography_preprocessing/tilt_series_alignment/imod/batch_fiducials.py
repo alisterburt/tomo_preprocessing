@@ -4,15 +4,15 @@ from typing import Optional
 import typer
 from yet_another_imod_wrapper import run_fiducial_based_alignment
 
-from ._cli import cli
-from ._imod_base import align_single_tilt_series
-from .. import utils
+from .alignment import align_single_tilt_series
+from .._cli import cli
+from ... import utils
+from ...utils.relion import relion_pipeline_job
 
-FIDUCIAL_ALIGNMENT_COMMAND_NAME = 'IMOD:fiducials'
 
-
-@cli.command(name=FIDUCIAL_ALIGNMENT_COMMAND_NAME)
-def relion_batch_imod_fiducials(
+@cli.command(name='IMOD:fiducials')
+@relion_pipeline_job
+def batch_fiducials(
         tilt_series_star_file: Path = typer.Option(...),
         output_directory: Path = typer.Option(...),
         tomogram_name: Optional[str] = typer.Option(None),
@@ -34,7 +34,7 @@ def relion_batch_imod_fiducials(
             output_directory=output_directory,
         )
     if tomogram_name is None:  # write out STAR file for set of tilt-series
-        utils.imod.write_aligned_tilt_series_star_file(
+        tomography_preprocessing.tilt_series_alignment.imod.imod.write_aligned_tilt_series_star_file(
             original_tilt_series_star_file=tilt_series_star_file,
             output_directory=output_directory
         )

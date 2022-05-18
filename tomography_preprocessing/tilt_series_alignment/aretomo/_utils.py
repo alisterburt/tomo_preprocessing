@@ -5,7 +5,7 @@ import numpy as np
 import pandas as pd
 import starfile
 
-from .. import utils
+from ..imod import _utils as imod_utils
 
 
 def get_tilt_series_alignment_parameters(
@@ -17,10 +17,10 @@ def get_tilt_series_alignment_parameters(
     Shifts are in pixels and should be applied before rotations.
     Rotations are ZYZ intrinsic Euler angles which transform the volume.
     """
-    tilt_angles = utils.imod.read_tlt(alignment_directory / f'{tilt_series_id}.tlt')
-    xf = utils.imod.read_xf(alignment_directory / f'{tilt_series_id}.xf')
-    shifts_px = utils.imod.get_pre_rotation_shifts(xf)
-    in_plane_rotations = utils.imod.get_xf_in_plane_rotations(xf)
+    tilt_angles = imod_utils.read_tlt(alignment_directory / f'{tilt_series_id}.tlt')
+    xf = imod_utils.read_xf(alignment_directory / f'{tilt_series_id}.xf')
+    shifts_px = imod_utils.get_pre_rotation_shifts(xf)
+    in_plane_rotations = imod_utils.get_xf_in_plane_rotations(xf)
     euler_angles = np.zeros(shape=(len(tilt_angles), 3))
     euler_angles[:, 1] = tilt_angles
     euler_angles[:, 2] = in_plane_rotations

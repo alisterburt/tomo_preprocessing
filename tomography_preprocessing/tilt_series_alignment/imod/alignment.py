@@ -2,9 +2,11 @@ from pathlib import Path
 from typing import Callable, Dict, Any
 
 import pandas as pd
+from rich.console import Console
 
-from tomography_preprocessing import utils
-from ._alignment_utils import create_alignment_job_directory_structure
+from .._job_utils import create_alignment_job_directory_structure
+from ._utils import write_relion_tilt_series_alignment_output
+from ... import utils
 
 
 def align_single_tilt_series(
@@ -15,39 +17,43 @@ def align_single_tilt_series(
         alignment_function_kwargs: Dict[str, Any],
         output_directory: Path,
 ):
+    console = Console(record=True)
+
     # Create output directory structure
-    tilt_series_directory, imod_alignments_directory = \
+    image_dir, all_alignments_dir = \
         create_alignment_job_directory_structure(output_directory)
-    imod_directory = imod_alignments_directory / tilt_series_id
-    imod_directory.mkdir(parents=True, exist_ok=True)
+    alignment_dir = all_alignments_dir / tilt_series_id
+    alignment_dir.mkdir(parents=True, exist_ok=True)
 
     # Establish filenames
     tilt_series_filename = f'{tilt_series_id}.mrc'
     tilt_image_metadata_filename = f'{tilt_series_id}.star'
-    tilt_series_path = tilt_series_directory / tilt_series_filename
-    tilt_image_metadata_star_path = tilt_series_directory / tilt_image_metadata_filename
 
     # Order is important in IMOD, sort by tilt angle
     tilt_image_df = tilt_image_df.sort_values(by='rlnTomoNominalStageTiltAngle', ascending=True)
 
     # Create tilt-series stack and align using IMOD
     # implicit assumption - one tilt-axis angle per tilt-series
+    console.log('Creating tilt series stack')
+    image_file_path = image_dir / tilt_series_filename
     utils.image.stack_image_files(
         image_files=tilt_image_df['rlnMicrographName'],
-        output_image_file=tilt_series_path
+        output_image_file=image_file_path,
     )
+    console.log('Running IMOD alignment')
     alignment_function(
-        tilt_series_file=tilt_series_path,
+        tilt_series_file=image_file_path,
         tilt_angles=tilt_image_df['rlnTomoNominalStageTiltAngle'],
         pixel_size=tilt_series_df['rlnMicrographOriginalPixelSize'],
         nominal_rotation_angle=tilt_image_df['rlnTomoNominalTiltAxisAngle'][0],
-        output_directory=imod_directory,
-        **alignment_function_kwargs
+        output_directory=alignment_dir,
+        **alignment_function_kwargs,
     )
-    utils.imod.write_relion_tilt_series_alignment_output(
+    console.log('Writing STAR file for aligned tilt-series')
+    write_relion_tilt_series_alignment_output(
         tilt_image_df=tilt_image_df,
         tilt_series_id=tilt_series_id,
         pixel_size=tilt_series_df['rlnMicrographOriginalPixelSize'],
-        imod_directory=imod_directory,
-        output_star_file=tilt_image_metadata_star_path
+        imod_directory=alignment_dir,
+        output_star_file=image_dir / tilt_image_metadata_filename,
     )
