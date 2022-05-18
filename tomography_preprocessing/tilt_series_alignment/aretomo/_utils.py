@@ -42,7 +42,7 @@ def remove_ignored_images(
     _nominal_tilt_angles = np.array(nominal_tilt_angles).reshape((-1, 1))
     _refined_tilt_angles = refined_tilt_angles.reshape((1, -1))
 
-    # calculate tilt angle deltas
+    # calculate difference between refined tilt angles and nominal tilt angles
     # deltas shape           (n, m)
     tilt_angle_deltas = np.abs(_nominal_tilt_angles - _refined_tilt_angles)
 
