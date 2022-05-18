@@ -158,7 +158,7 @@ def write_aligned_tilt_series_star_file(
         for tilt_series_id, _, _ in tilt_series_metadata
     ]
     df['EtomoDirectiveFile'] = [
-	output_directory / 'alignments' / tilt_series_id / f'{tilt_series_id}.edf'
+        output_directory / 'alignments' / tilt_series_id / f'{tilt_series_id}.edf'
         for tilt_series_id, _, _ in tilt_series_metadata
     ]
     etomo_dir_exist = any(df['EtomoDirectiveFile'].apply(lambda x: Path(x).exists()))

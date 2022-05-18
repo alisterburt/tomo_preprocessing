@@ -4,6 +4,7 @@ from typing import Tuple, Optional
 import typer
 from yet_another_imod_wrapper import run_patch_tracking_based_alignment
 
+import tomography_preprocessing.tilt_series_alignment.aretomo._utils
 from .alignment import align_single_tilt_series
 from .._cli import cli
 from ... import utils
@@ -36,7 +37,7 @@ def batch_patch_tracking(
             output_directory=output_directory,
         )
     if tomogram_name is None:  # write out STAR file for set of tilt-series
-        tomography_preprocessing.tilt_series_alignment.imod.imod.write_aligned_tilt_series_star_file(
+        tomography_preprocessing.tilt_series_alignment.aretomo._utils.write_aligned_tilt_series_star_file(
             original_tilt_series_star_file=tilt_series_star_file,
             output_directory=output_directory
         )
