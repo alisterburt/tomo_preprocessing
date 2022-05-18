@@ -19,12 +19,29 @@ def batch_aretomo(
         tilt_series_star_file: Path = typer.Option(...),
         output_directory: Path = typer.Option(...),
         aretomo_executable: Path = typer.Option(...),
-        local_align: Optional[bool] = typer.Option(False),
-        target_pixel_size: Optional[float] = typer.Option(10),
-        n_patches_xy: Optional[tuple[int, int]] = typer.Option((5, 4)),
-        thickness_for_alignment: Optional[float] = typer.Option(800),
+        do_local_alignments: Optional[bool] = typer.Option(False),
+        n_patches_xy: Optional[tuple[int, int]] = typer.Option(None),
+        alignment_pixel_size: Optional[float] = typer.Option(10),
+        alignment_thickness: Optional[float] = typer.Option(800),
         tomogram_name: Optional[str] = typer.Option(None)
 ):
+    """Align a set of tilt-series in AreTomo using RELION tilt-series metadata.
+
+    Parameters
+    ----------
+    tilt_series_star_file: RELION tilt-series STAR file.
+    output_directory: directory in which results will be stored.
+    aretomo_executable: path to AreTomo executable.
+    do_local_alignments: flag to enable/disable local alignments in AreTomo.
+    n_patches_xy: number of patches in x and y used in local alignments.
+    alignment_pixel_size: pixel size for intermediate alignments.
+    alignment_thickness: thickness of intermediate reconstructions during alignments in px.
+    tomogram_name: 'rlnTomoName' for a specific tilt-series.
+
+    Returns
+    -------
+
+    """
     console.log('Extracting metadata for all tilt series.')
     tilt_series_metadata = utils.star.iterate_tilt_series_metadata(
         tilt_series_star_file=tilt_series_star_file,
@@ -37,10 +54,10 @@ def batch_aretomo(
             tilt_series_df=tilt_series_df,
             tilt_image_df=tilt_image_df,
             aretomo_executable=aretomo_executable,
-            do_local_alignments=local_align,
-            alignment_pixel_size=target_pixel_size,
+            do_local_alignments=do_local_alignments,
+            alignment_pixel_size=alignment_pixel_size,
             n_patches_xy=n_patches_xy,
-            alignment_thickness_px=thickness_for_alignment,
+            alignment_thickness_px=alignment_thickness,
             output_directory=output_directory,
         )
     if tomogram_name is None:  # write out STAR file for set of tilt-series
