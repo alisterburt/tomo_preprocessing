@@ -4,6 +4,7 @@ from typing import Tuple, Optional
 import typer
 from yet_another_imod_wrapper import run_patch_tracking_based_alignment
 
+import tomography_preprocessing.tilt_series_alignment._imod
 from ._cli import cli
 from .. import utils
 
@@ -23,7 +24,7 @@ def align_tilt_series_in_imod_using_patch_tracking(
         tilt_series_id=tomogram_name
     )
     for tilt_series_id, tilt_series_df, tilt_image_df in tilt_series_metadata:
-        utils.imod.align_single_tilt_series(
+        tomography_preprocessing.tilt_series_alignment._imod.align_single_tilt_series(
             tilt_series_id=tilt_series_id,
             tilt_series_df=tilt_series_df,
             tilt_image_df=tilt_image_df,

@@ -6,6 +6,7 @@ import pandas as pd
 import rich
 import starfile
 
+import tomography_preprocessing.tilt_series_alignment._utils
 from .. import utils
 
 
@@ -13,10 +14,10 @@ def get_tilt_series_alignment_parameters(
         alignment_directory: Path,
         tilt_series_id: str
 ) -> Tuple[np.ndarray, np.ndarray]:
-    """Get the tilt-series alignment parameters from an IMOD directory.
+    """Get tilt-series alignment parameters from an AreTomo alignment directory.
 
     Shifts are in pixels and should be applied before rotations.
-    Rotations are ZYZ intrinsic Euler angles which transform the volume
+    Rotations are ZYZ intrinsic Euler angles which transform the volume.
     """
     tilt_angles = utils.imod.read_tlt(alignment_directory / f'{tilt_series_id}.tlt')
     xf = utils.imod.read_xf(alignment_directory / f'{tilt_series_id}.xf')
@@ -63,61 +64,3 @@ def write_relion_tilt_series_alignment_output(
     starfile.write({tilt_series_id: tilt_image_df}, output_star_file)
 
 
-def align_single_tilt_series(
-        tilt_series_id: str,
-        tilt_series_df: pd.DataFrame,
-        tilt_image_df: pd.DataFrame,
-        alignment_function: Callable,
-        aretomo_executable: Path,
-        local_align: bool,
-        target_pixel_size: float,
-        n_patches_xy: tuple[int, int],
-        correct_tilt_angle_offset: bool,
-        thickness_for_alignment: float,
-        output_directory: Path,
-):
-    console = rich.console.Console(record=True)
-    # Create output directory structure
-    tilt_series_directory, imod_alignments_directory = \
-        utils.imod.create_job_directory_structure(output_directory)
-    imod_directory = imod_alignments_directory / tilt_series_id
-    imod_directory.mkdir(parents=True, exist_ok=True)
-
-    # Establish filenames
-    tilt_series_filename = f'{tilt_series_id}.mrc'
-    tilt_image_metadata_filename = f'{tilt_series_id}.star'
-    tilt_series_path = tilt_series_directory / tilt_series_filename
-    tilt_image_metadata_star_path = tilt_series_directory / tilt_image_metadata_filename
-
-    # Order is important in IMOD, sort by tilt angle
-    tilt_image_df = tilt_image_df.sort_values(by='rlnTomoNominalStageTiltAngle', ascending=True)
-
-    # Create tilt-series stack and align using IMOD
-    # implicit assumption - one tilt-axis angle per tilt-series
-    console.log('Creating tilt series stack')
-    utils.image.stack_image_files(
-        image_files=tilt_image_df['rlnMicrographName'],
-        output_image_file=tilt_series_path
-    )
-    console.log('Running AreTomo')
-    alignment_function(
-        tilt_series_file=tilt_series_path,
-        tilt_angles=tilt_image_df['rlnTomoNominalStageTiltAngle'],
-        pixel_size=tilt_series_df['rlnMicrographOriginalPixelSize'],
-        nominal_rotation_angle=tilt_image_df['rlnTomoNominalTiltAxisAngle'][0],
-        output_directory=imod_directory,
-        aretomo_executable=aretomo_executable,
-        local_align=local_align,
-        target_pixel_size=target_pixel_size,
-        n_patches_xy=n_patches_xy,
-        correct_tilt_angle_offset=correct_tilt_angle_offset,
-        thickness_for_alignment=thickness_for_alignment,
-    )
-    console.log('Writing alignment .star')
-    utils.aretomo.write_relion_tilt_series_alignment_output(
-        tilt_image_df=tilt_image_df,
-        tilt_series_id=tilt_series_id,
-        pixel_size=tilt_series_df['rlnMicrographOriginalPixelSize'],
-        imod_directory=imod_directory,
-        output_star_file=tilt_image_metadata_star_path
-    )

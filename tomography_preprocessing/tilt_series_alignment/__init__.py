@@ -1,5 +1,5 @@
-from .imod_fiducials import align_tilt_series_in_imod_using_fiducials
+from .imod_fiducials import relion_batch_imod_fiducials
 from .imod_patch_tracking import align_tilt_series_in_imod_using_patch_tracking
 from .imod_generate_matrices import generate_imod_matrices
-from .aretomo import aretomo_function
+from .aretomo import relion_batch_aretomo
 from ._cli import cli

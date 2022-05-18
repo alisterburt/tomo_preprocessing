@@ -6,6 +6,7 @@ import numpy as np
 import starfile
 import typer
 
+import tomography_preprocessing.tilt_series_alignment._utils
 from ._cli import cli
 from .. import utils
 
@@ -20,7 +21,7 @@ def generate_imod_matrices(
         tilt_series_star_file=tilt_series_star_file,
     )
     tilt_series_directory, imod_alignments_directory = \
-        utils.imod.create_job_directory_structure(output_directory)
+        tomography_preprocessing.tilt_series_alignment._utils.create_alignment_job_directory_structure(output_directory)
     tilt_image_star_files = []
 
     for tilt_series_id, tilt_series_df, tilt_image_df in tilt_series_metadata:
