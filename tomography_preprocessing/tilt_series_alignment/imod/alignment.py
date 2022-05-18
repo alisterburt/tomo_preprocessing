@@ -28,8 +28,6 @@ def align_single_tilt_series(
     alignment_function_kwargs: keyword arguments specific to the alignment function.
     output_directory: directory in which to run alignment.
     """
-
-
     console = Console(record=True)
 
     # Create output directory structure
