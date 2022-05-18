@@ -17,7 +17,7 @@ def align_single_tilt_series(
         alignment_function_kwargs: Dict[str, Any],
         output_directory: Path,
 ):
-    """Align a single tilt-series in IMOD.
+    """Align a single tilt-series in IMOD using RELION tilt-series metadata.
 
     Parameters
     ----------
@@ -26,7 +26,7 @@ def align_single_tilt_series(
     tilt_image_df: file containing information for images in a single tilt-series.
     alignment_function: alignment function from yet_another_imod_wrapper.
     alignment_function_kwargs: keyword arguments specific to the alignment function.
-    output_directory: directory in which to run alignment.
+    output_directory: directory in which results will be stored.
     """
     console = Console(record=True)
 

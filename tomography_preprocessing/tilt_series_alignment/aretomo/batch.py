@@ -37,11 +37,10 @@ def batch_aretomo(
             tilt_series_df=tilt_series_df,
             tilt_image_df=tilt_image_df,
             aretomo_executable=aretomo_executable,
-            local_align=local_align,
-            target_pixel_size=target_pixel_size,
+            do_local_alignments=local_align,
+            alignment_pixel_size=target_pixel_size,
             n_patches_xy=n_patches_xy,
-            correct_tilt_angle_offset=False,
-            thickness_for_alignment=thickness_for_alignment,
+            alignment_thickness_px=thickness_for_alignment,
             output_directory=output_directory,
         )
     if tomogram_name is None:  # write out STAR file for set of tilt-series

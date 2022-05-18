@@ -14,13 +14,26 @@ def align_single_tilt_series(
         tilt_series_df: pd.DataFrame,
         tilt_image_df: pd.DataFrame,
         aretomo_executable: Path,
-        local_align: bool,
-        target_pixel_size: float,
+        do_local_alignments: bool,
+        alignment_pixel_size: float,
         n_patches_xy: tuple[int, int],
-        correct_tilt_angle_offset: bool,
-        thickness_for_alignment: float,
+        alignment_thickness_px: float,
         output_directory: Path,
 ):
+    """Align a single tilt-series in AreTomo using RELION tilt-series metadata.
+
+    Parameters
+    ----------
+    tilt_series_id: 'rlnTomoName' in RELION tilt-series metadata.
+    tilt_series_df: master file for tilt-series metadata.
+    tilt_image_df: file containing information for images in a single tilt-series.
+    aretomo_executable: path to executable for AreTomo.
+    do_local_alignments: flag to enable local alignments.
+    alignment_pixel_size: pixel size for alignments in angstroms per pixel.
+    n_patches_xy: number of patches in x and y for local alignments
+    alignment_thickness_px: thickness of intermediate reconstruction during alignments.
+    output_directory: directory in which results will be stored.
+    """
     console = Console(record=True)
 
     # Create output directory structure
@@ -52,11 +65,11 @@ def align_single_tilt_series(
         nominal_rotation_angle=tilt_image_df['rlnTomoNominalTiltAxisAngle'][0],
         output_directory=alignment_dir,
         aretomo_executable=aretomo_executable,
-        local_align=local_align,
-        target_pixel_size=target_pixel_size,
+        local_align=do_local_alignments,
+        target_pixel_size=alignment_pixel_size,
         n_patches_xy=n_patches_xy,
-        correct_tilt_angle_offset=correct_tilt_angle_offset,
-        thickness_for_alignment=thickness_for_alignment,
+        correct_tilt_angle_offset=False,
+        thickness_for_alignment=alignment_thickness_px,
     )
     console.log('Writing STAR file for aligned tilt-series')
     write_relion_tilt_series_alignment_output(
