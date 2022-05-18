@@ -29,22 +29,31 @@ def get_tilt_series_alignment_parameters(
 
 def remove_ignored_images(
         tilt_image_df: pd.DataFrame,
-        euler_angles: np.ndarray
+        refined_tilt_angles: np.ndarray
 ) -> pd.DataFrame:
     """Detect the images removed from the tilt series by AreTomo (due to poor alignment) and remove them from
     the image stack and star file
     """
-    star_angles = tilt_image_df['rlnTomoNominalStageTiltAngle']
-    tlt_angles = euler_angles[:, 1]
-    idx_min = []
-    for angle in tlt_angles:
-        arr_diff = abs(star_angles - angle)
-        # If difference between nominal tilt and tlt file is less than 0.5, assume same tilt
-        if np.min(arr_diff) < 0.5:
-            idx_min.append(np.argmin(arr_diff))
-    complete_df = tilt_image_df.copy()
-    complete_df = complete_df.iloc[idx_min]
-    return complete_df
+    nominal_tilt_angles = tilt_image_df['rlnTomoNominalStageTiltAngle']
+
+    # setup for broadcasting:
+    # _nominal shape         (n, 1)
+    # _refined shape         (1, m)
+    _nominal_tilt_angles = np.array(nominal_tilt_angles).reshape((-1, 1))
+    _refined_tilt_angles = refined_tilt_angles.reshape((1, -1))
+
+    # calculate tilt angle deltas
+    # deltas shape           (n, m)
+    tilt_angle_deltas = np.abs(_nominal_tilt_angles - _refined_tilt_angles)
+
+    # check all deltas are small
+    all_deltas_close = np.allclose(np.min(tilt_angle_deltas, axis=0), 0, atol=0.5)
+    if not all_deltas_close:
+        raise RuntimeError("Could not determine which images were automatically removed.")
+
+    # Get subset of images data with matched tilt-images
+    idx = np.argmin(tilt_angle_deltas, axis=0)
+    return tilt_image_df.iloc[idx]
 
 
 def write_relion_tilt_series_alignment_output(
