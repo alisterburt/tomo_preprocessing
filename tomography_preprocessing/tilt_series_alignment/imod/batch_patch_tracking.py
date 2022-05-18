@@ -20,6 +20,16 @@ def batch_patch_tracking(
         unbinned_patch_size_pixels: Tuple[int, int] = typer.Option(...),
         patch_overlap_percentage: float = typer.Option(...),
 ):
+    """Align one or multiple tilt-series with patch-tracking in IMOD.
+
+    Parameters
+    ----------
+    tilt_series_star_file: RELION tilt-series STAR file.
+    output_directory: directory in which to store results.
+    tomogram_name: 'rlnTomoName' in tilt-series STAR file.
+    unbinned_patch_size_pixels: size of 2D patches used for alignment.
+    patch_overlap_percentage: percentage of overlap between tracked patches.
+    """
     tilt_series_metadata = utils.star.iterate_tilt_series_metadata(
         tilt_series_star_file=tilt_series_star_file,
         tilt_series_id=tomogram_name

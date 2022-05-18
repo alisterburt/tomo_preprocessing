@@ -19,6 +19,15 @@ def batch_fiducials(
         tomogram_name: Optional[str] = typer.Option(None),
         nominal_fiducial_diameter_nanometres: float = typer.Option(...),
 ):
+    """Align one or multiple tilt-series with fiducials in IMOD.
+
+    Parameters
+    ----------
+    tilt_series_star_file: RELION tilt-series STAR file.
+    output_directory: directory in which results will be stored.
+    tomogram_name: 'rlnTomoName' in RELION tilt-series metadata.
+    nominal_fiducial_diameter_nanometres: nominal fiducial diameter in nanometers.
+    """
     tilt_series_metadata = utils.star.iterate_tilt_series_metadata(
         tilt_series_star_file=tilt_series_star_file,
         tilt_series_id=tomogram_name

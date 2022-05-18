@@ -25,7 +25,7 @@ def batch_aretomo(
         alignment_thickness: Optional[float] = typer.Option(800),
         tomogram_name: Optional[str] = typer.Option(None)
 ):
-    """Align a set of tilt-series in AreTomo using RELION tilt-series metadata.
+    """Align one or multiple tilt-series in AreTomo using RELION tilt-series metadata.
 
     Parameters
     ----------
