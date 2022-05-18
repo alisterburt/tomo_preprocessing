@@ -1,12 +1,10 @@
 from pathlib import Path
-from typing import Tuple, Callable
+from typing import Tuple
 
 import numpy as np
 import pandas as pd
-import rich
 import starfile
 
-import tomography_preprocessing.tilt_series_alignment._utils
 from .. import utils
 
 
