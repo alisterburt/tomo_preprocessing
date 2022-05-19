@@ -3,8 +3,8 @@ import numpy as np
 
 
 def Rx(angles_degrees: np.ndarray) -> np.ndarray:
-    """Affine matrices for rotations around the X-axis."""
-    angles_degrees = np.array(angles_degrees).reshape(-1)
+    """Affine matrix for a rotation around the X-axis."""
+    angles_degrees = np.asarray(angles_degrees).reshape(-1)
     c = np.cos(np.deg2rad(angles_degrees))
     s = np.sin(np.deg2rad(angles_degrees))
     matrices = einops.repeat(
@@ -18,8 +18,8 @@ def Rx(angles_degrees: np.ndarray) -> np.ndarray:
 
 
 def Ry(angles_degrees: np.ndarray) -> np.ndarray:
-    """Affine matrices for a rotations around the Y-axis."""
-    angles_degrees = np.array(angles_degrees).reshape(-1)
+    """Affine matrix for a rotation around the Y-axis."""
+    angles_degrees = np.asarray(angles_degrees).reshape(-1)
     c = np.cos(np.deg2rad(angles_degrees))
     s = np.sin(np.deg2rad(angles_degrees))
     matrices = einops.repeat(
@@ -34,7 +34,7 @@ def Ry(angles_degrees: np.ndarray) -> np.ndarray:
 
 def Rz(angles_degrees: float) -> np.ndarray:
     """Affine matrix for a rotation around the Z-axis."""
-    angle_degrees = np.array(angles_degrees).reshape(-1)
+    angle_degrees = np.asarray(angles_degrees).reshape(-1)
     c = np.cos(np.deg2rad(angle_degrees))
     s = np.sin(np.deg2rad(angle_degrees))
     matrices = einops.repeat(
@@ -47,10 +47,22 @@ def Rz(angles_degrees: float) -> np.ndarray:
     return np.squeeze(matrices)
 
 
-def S(xyz_shifts: np.ndarray) -> np.ndarray:
-    """Affine matrices for xyz-shifts."""
-    xyz_shifts = np.array(xyz_shifts).reshape((-1, 3))
-    n = xyz_shifts.shape[0]
-    matrices = einops.repeat(np.eye(4), 'i j -> n i j', n=n)
-    matrices[:, 0:3, 3] = xyz_shifts
+def S(shifts: np.ndarray) -> np.ndarray:
+    """Affine matrices for shifts.
+
+    Shifts supplied can be 2D or 3D.
+    """
+    shifts = np.asarray(shifts, dtype=float)
+    if shifts.shape[-1] == 2:
+        shifts = promote_2d_to_3d(shifts)
+    shifts = np.array(shifts).reshape((-1, 3))
+    matrices = einops.repeat(np.eye(4), 'i j -> n i j', n=shifts.shape[0])
+    matrices[:, 0:3, 3] = shifts
     return np.squeeze(matrices)
+
+
+def promote_2d_to_3d(shifts: np.ndarray) -> np.ndarray:
+    """Promote 2D vectors to 3D with zeros in the last dimension."""
+    shifts = np.asarray(shifts).reshape(-1, 2)
+    shifts = np.c_[shifts, np.zeros(shifts.shape[0])]
+    return np.squeeze(shifts)
