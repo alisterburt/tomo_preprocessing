@@ -1,4 +1,3 @@
-import os
 from pathlib import Path
 from typing import Tuple
 
@@ -6,6 +5,7 @@ import numpy as np
 import starfile
 import typer
 
+from ._utils import relion_tilt_series_alignment_parameters_to_relion_matrix
 from .._cli import cli
 from .._job_utils import create_alignment_job_directory_structure
 from ... import utils
@@ -28,9 +28,7 @@ def generate_imod_matrices(
         euler_angles = tilt_image_df[['rlnAngleRot', 'rlnAngleTilt', 'rlnAnglePsi']]
         shifts = tilt_image_df[['rlnOriginXAngst', 'rlnOriginYAngst']]
         shifts /= tilt_series_df['rlnMicrographOriginalPixelSize']
-        matrices = tomography_preprocessing.tilt_series_alignment.imod.imod.relion_tilt_series_alignment_parameters_to_relion_matrix(
-            shifts=shifts,
-        matrices = utils.imod.relion_tilt_series_alignment_parameters_to_relion_matrix(
+        matrices = relion_tilt_series_alignment_parameters_to_relion_matrix(
             tilt_image_shifts=shifts,
             euler_angles=euler_angles,
             tilt_image_dimensions=utils.mrc.get_image_dimensions(
