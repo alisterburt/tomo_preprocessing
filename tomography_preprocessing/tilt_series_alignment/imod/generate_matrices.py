@@ -48,4 +48,6 @@ def generate_imod_matrices(
 
     star = starfile.read(tilt_series_star_file, always_dict=True)
     star['global']['rlnTomoTiltSeriesStarFile'] = tilt_image_star_files
+    star['global'][['rlnTomoSizeX', 'rlnTomoSizeY', 'rlnTomoSizeZ']] = tomogram_dimensions
+    star['global']['rlnTomoHand'] = 1
     starfile.write(star, output_directory / 'aligned_tilt_series_with_matrices.star')
