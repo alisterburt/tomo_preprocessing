@@ -7,8 +7,8 @@ import numpy as np
 import pandas as pd
 import starfile
 
-from tomography_preprocessing import utils
-from tomography_preprocessing.utils.transformations import S, Ry, Rz
+from ... import utils
+from ...utils.transformations import S, Ry, Rz
 
 
 def read_xf(file: os.PathLike) -> np.ndarray:
@@ -121,31 +121,34 @@ def relion_tilt_series_alignment_parameters_to_relion_matrix(
         tilt_image_dimensions: np.ndarray,
         tomogram_dimensions: np.ndarray,
 ):
-    """shifts need to be in px at this point"""
-    tilt_image_center = (tilt_image_dimensions - 1) / 2
-    tilt_image_center = np.append(tilt_image_center, 0)
-    tomogram_center = tomogram_dimensions / 2
-    n_tilt_images = tilt_image_shifts.shape[0]
-    tomogram_origin_to_tilt_image_origin = tomogram_center - tilt_image_center
+    """Generate affine matrices transforming points in 3D to 2D in tilt-images.
 
-    # zero-fill shifts (n, 2) to (n, 3)
-    tilt_image_shifts = np.c_[tilt_image_shifts, np.zeros(n_tilt_images)]
+    Projection model:
+    3D specimen is rotated about its center then translated such that the projection
+    of points onto the XY-plane gives their position in a tilt-image.
 
-    # Generate affine matrices for each component of the final transformation
-    # first the rotations
-    in_plane_rotation = Rz(euler_angles['rlnAnglePsi'])
-    tilt = Ry(euler_angles['rlnAngleTilt'])
+    More specifically
+    - 3D specimen is rotated about its center by
+        - shifting the origin to the specimen center
+        - rotated extrinsically about the Y-axis by the tilt angle
+        - rotated extrinsically about the Z-axis by the in plane rotation angle
+    - 3D specimen is translated to align coordinate system with tilt-image
+        - move center-of-rotation of specimen to center of tilt-image
+        - move center-of-rotation of specimen to rotation center in tilt-image
+    """
+    tilt_image_center = (tilt_image_dimensions - 1) / 2  # 2D rotation center in IMOD
+    specimen_center = tomogram_dimensions / 2
 
-    # offsets
-    tomogram_center_to_origin = S(-tomogram_center)
-    tomogram_origin_to_center = S(tomogram_center)
-    tilt_image_centering_shift = S(tilt_image_shifts)
-    tomogram_projection_to_tilt_image = S(tomogram_origin_to_tilt_image_origin)
+    # Transformations, defined in order of application
+    s0 = S(-specimen_center)  # shift specimen center to the origin
+    r0 = Ry(euler_angles['rlnAngleTilt'])  # rotate around Y-axis by the tilt angle
+    r1 = Rz(euler_angles['rlnAnglePsi'])  # rotate around Z-axis by in plane rotation angle
+    s1 = S(tilt_image_center)  # move center-of-rotation of specimen to center of tilt-image
+    s2 = S(-tilt_image_shifts)  # move center-of-rotation to correct position in tilt-image
 
     # compose matrices
-    volume_transforms = tomogram_origin_to_center @ in_plane_rotation @ tilt @ tomogram_center_to_origin
-    image_transforms = tomogram_projection_to_tilt_image @ tilt_image_centering_shift
-    return np.squeeze(image_transforms @ volume_transforms)
+    transformations = s2 @ s1 @ r1 @ r0 @ s0
+    return np.squeeze(transformations)
 
 
 def write_aligned_tilt_series_star_file(

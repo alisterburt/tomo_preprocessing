@@ -5,10 +5,10 @@ import numpy as np
 import starfile
 import typer
 
-from ._utils import relion_tilt_series_alignment_parameters_to_relion_matrix
 from .._cli import cli
 from .._job_utils import create_alignment_job_directory_structure
 from ... import utils
+from ._utils import relion_tilt_series_alignment_parameters_to_relion_matrix
 
 
 @cli.command(name='IMOD:generate-matrices')
@@ -49,4 +49,5 @@ def generate_imod_matrices(
     star = starfile.read(tilt_series_star_file, always_dict=True)
     star['global']['rlnTomoTiltSeriesStarFile'] = tilt_image_star_files
     star['global'][['rlnTomoSizeX', 'rlnTomoSizeY', 'rlnTomoSizeZ']] = tomogram_dimensions
+    star['global']['rlnTomoHand'] = 1
     starfile.write(star, output_directory / 'aligned_tilt_series_with_matrices.star')
