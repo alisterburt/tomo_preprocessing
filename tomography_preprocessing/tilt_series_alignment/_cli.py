@@ -1,4 +1,5 @@
 import typer
 
-CLI_NAME = 'relion_tomo_align_tilt_series'
-cli = typer.Typer(name=CLI_NAME)
+cli = typer.Typer(name='relion_tomo_align_tilt_series')
+
+
