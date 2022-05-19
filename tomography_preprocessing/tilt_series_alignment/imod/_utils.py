@@ -144,7 +144,7 @@ def relion_tilt_series_alignment_parameters_to_relion_matrix(
     r0 = Ry(euler_angles['rlnAngleTilt'])  # rotate around Y-axis by the tilt angle
     r1 = Rz(euler_angles['rlnAnglePsi'])  # rotate around Z-axis by in plane rotation angle
     s1 = S(tilt_image_center)  # move center-of-rotation of specimen to center of tilt-image
-    s2 = S(-tilt_image_shifts)  # move center-of-rotation to correct position in tilt-image
+    s2 = S(tilt_image_shifts)  # move center-of-rotation to correct position in tilt-image
 
     # compose matrices
     transformations = s2 @ s1 @ r1 @ r0 @ s0
