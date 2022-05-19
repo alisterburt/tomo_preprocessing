@@ -68,7 +68,6 @@ def align_single_tilt_series(
         local_align=do_local_alignments,
         target_pixel_size=alignment_pixel_size,
         n_patches_xy=n_patches_xy,
-        correct_tilt_angle_offset=False,
         thickness_for_alignment=alignment_thickness_px,
     )
     console.log('Writing STAR file for aligned tilt-series')
