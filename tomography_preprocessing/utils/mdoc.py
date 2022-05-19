@@ -45,4 +45,7 @@ def get_tilt_image_basenames(mdoc_tilt_image_files: pd.Series) -> pd.Series:
 
 def construct_tomogram_id(mdoc_file: Path, prefix: str) -> str:
     """Construct a unique tomogram ID."""
-    return f'{prefix}_{utils.file.basename(mdoc_file)}'
+    if prefix == '':
+        return f'{utils.file.basename(mdoc_file)}'
+    else:
+        return f'{prefix}_{utils.file.basename(mdoc_file)}'

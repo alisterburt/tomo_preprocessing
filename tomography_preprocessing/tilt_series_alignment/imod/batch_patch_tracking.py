@@ -4,26 +4,38 @@ from typing import Tuple, Optional
 import typer
 from yet_another_imod_wrapper import run_patch_tracking_based_alignment
 
-from ._cli import cli
-from .. import utils
+import tomography_preprocessing.tilt_series_alignment.aretomo._utils
+from .alignment import align_single_tilt_series
+from .._cli import cli
+from ... import utils
+from ...utils.relion import relion_pipeline_job
 
-PATCH_TRACKING_COMMAND_NAME = 'IMOD:patch-tracking'
 
-
-@cli.command(name=PATCH_TRACKING_COMMAND_NAME)
-def align_tilt_series_in_imod_using_patch_tracking(
+@cli.command(name='IMOD:patch-tracking')
+@relion_pipeline_job
+def batch_patch_tracking(
         tilt_series_star_file: Path = typer.Option(...),
         output_directory: Path = typer.Option(...),
         tomogram_name: Optional[str] = typer.Option(None),
         unbinned_patch_size_pixels: Tuple[int, int] = typer.Option(...),
         patch_overlap_percentage: float = typer.Option(...),
 ):
+    """Align one or multiple tilt-series with patch-tracking in IMOD.
+
+    Parameters
+    ----------
+    tilt_series_star_file: RELION tilt-series STAR file.
+    output_directory: directory in which to store results.
+    tomogram_name: 'rlnTomoName' in tilt-series STAR file.
+    unbinned_patch_size_pixels: size of 2D patches used for alignment.
+    patch_overlap_percentage: percentage of overlap between tracked patches.
+    """
     tilt_series_metadata = utils.star.iterate_tilt_series_metadata(
         tilt_series_star_file=tilt_series_star_file,
         tilt_series_id=tomogram_name
     )
     for tilt_series_id, tilt_series_df, tilt_image_df in tilt_series_metadata:
-        utils.imod.align_single_tilt_series(
+        align_single_tilt_series(
             tilt_series_id=tilt_series_id,
             tilt_series_df=tilt_series_df,
             tilt_image_df=tilt_image_df,
@@ -35,7 +47,7 @@ def align_tilt_series_in_imod_using_patch_tracking(
             output_directory=output_directory,
         )
     if tomogram_name is None:  # write out STAR file for set of tilt-series
-        utils.imod.write_aligned_tilt_series_star_file(
+        tomography_preprocessing.tilt_series_alignment.aretomo._utils.write_aligned_tilt_series_star_file(
             original_tilt_series_star_file=tilt_series_star_file,
             output_directory=output_directory
         )

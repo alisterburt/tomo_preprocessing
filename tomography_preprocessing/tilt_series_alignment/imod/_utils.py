@@ -1,14 +1,14 @@
 import os
 from functools import lru_cache
 from pathlib import Path
-from typing import Tuple, Callable, Dict, Any
+from typing import Tuple
 
 import numpy as np
 import pandas as pd
 import starfile
 
-from .. import utils
-from ..utils.transformations import S, Rx, Ry, Rz
+from tomography_preprocessing import utils
+from tomography_preprocessing.utils.transformations import S, Ry, Rz
 
 
 def read_xf(file: os.PathLike) -> np.ndarray:
@@ -29,7 +29,7 @@ def read_tlt(file: os.PathLike) -> np.ndarray:
     return np.loadtxt(fname=file, dtype=float).reshape(-1)
 
 
-def get_xf_shifts(xf: np.ndarray) -> np.ndarray:
+def get_pre_rotation_shifts(xf: np.ndarray) -> np.ndarray:
     """Extract XY shifts from IMOD xf data.
 
     Output is an (n, 2) numpy array of shifts which center tilt-images.
@@ -89,10 +89,10 @@ def get_tilt_series_alignment_parameters(
     """Get the tilt-series alignment parameters from an IMOD directory.
 
     Shifts are in pixels and should be applied before rotations.
-    Rotations are ZYZ intrinsic Euler angles which transform the volume
+    Rotations are ZYZ intrinsic Euler angles which transform the volume.
     """
     xf = read_xf(get_xf_file(imod_directory))
-    shifts_px = get_xf_shifts(xf)
+    shifts_px = get_pre_rotation_shifts(xf)
     in_plane_rotations = get_xf_in_plane_rotations(xf)
     tilt_angles = read_tlt(get_tlt_file(imod_directory))
     euler_angles = np.zeros(shape=(len(tilt_angles), 3))
@@ -148,62 +148,6 @@ def relion_tilt_series_alignment_parameters_to_relion_matrix(
     return np.squeeze(image_transforms @ volume_transforms)
 
 
-def create_job_directory_structure(output_directory: Path) -> Tuple[Path, Path]:
-    """Create directory structure for an IMOD alignment job."""
-    tilt_series_directory = output_directory / 'tilt_series'
-    tilt_series_directory.mkdir(parents=True, exist_ok=True)
-
-    imod_alignments_directory = output_directory / 'imod_alignments'
-    imod_alignments_directory.mkdir(parents=True, exist_ok=True)
-    return tilt_series_directory, imod_alignments_directory
-
-
-def align_single_tilt_series(
-        tilt_series_id: str,
-        tilt_series_df: pd.DataFrame,
-        tilt_image_df: pd.DataFrame,
-        alignment_function: Callable,
-        alignment_function_kwargs: Dict[str, Any],
-        output_directory: Path,
-):
-    # Create output directory structure
-    tilt_series_directory, imod_alignments_directory = \
-        create_job_directory_structure(output_directory)
-    imod_directory = imod_alignments_directory / tilt_series_id
-    imod_directory.mkdir(parents=True, exist_ok=True)
-
-    # Establish filenames
-    tilt_series_filename = f'{tilt_series_id}.mrc'
-    tilt_image_metadata_filename = f'{tilt_series_id}.star'
-    tilt_series_path = tilt_series_directory / tilt_series_filename
-    tilt_image_metadata_star_path = tilt_series_directory / tilt_image_metadata_filename
-
-    # Order is important in IMOD, sort by tilt angle
-    tilt_image_df = tilt_image_df.sort_values(by='rlnTomoNominalStageTiltAngle', ascending=True)
-
-    # Create tilt-series stack and align using IMOD
-    # implicit assumption - one tilt-axis angle per tilt-series
-    utils.image.stack_image_files(
-        image_files=tilt_image_df['rlnMicrographName'],
-        output_image_file=tilt_series_path
-    )
-    alignment_function(
-        tilt_series_file=tilt_series_path,
-        tilt_angles=tilt_image_df['rlnTomoNominalStageTiltAngle'],
-        pixel_size=tilt_series_df['rlnMicrographOriginalPixelSize'],
-        nominal_rotation_angle=tilt_image_df['rlnTomoNominalTiltAxisAngle'][0],
-        output_directory=imod_directory,
-        **alignment_function_kwargs
-    )
-    utils.imod.write_relion_tilt_series_alignment_output(
-        tilt_image_df=tilt_image_df,
-        tilt_series_id=tilt_series_id,
-        pixel_size=tilt_series_df['rlnMicrographOriginalPixelSize'],
-        imod_directory=imod_directory,
-        output_star_file=tilt_image_metadata_star_path
-    )
-
-
 def write_aligned_tilt_series_star_file(
         original_tilt_series_star_file: Path,
         output_directory: Path,
@@ -218,11 +162,12 @@ def write_aligned_tilt_series_star_file(
         for tilt_series_id, _, _ in tilt_series_metadata
     ]
     df['EtomoDirectiveFile'] = [
-        output_directory / 'imod_alignments' / tilt_series_id / f'{tilt_series_id}.edf'
+        output_directory / 'alignments' / tilt_series_id / f'{tilt_series_id}.edf'
         for tilt_series_id, _, _ in tilt_series_metadata
     ]
-
+    etomo_dir_exist = any(df['EtomoDirectiveFile'].apply(lambda x: Path(x).exists()))
+    if etomo_dir_exist is False:
+        df = df.drop(columns=['EtomoDirectiveFile'])
     # check which output files were succesfully generated, take only those
     df = df[df['rlnTomoTiltSeriesStarFile'].apply(lambda x: x.exists())]
-
     starfile.write({'global': df}, output_directory / 'aligned_tilt_series.star')
