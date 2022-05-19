@@ -7,8 +7,8 @@ import numpy as np
 import pandas as pd
 import starfile
 
-from tomography_preprocessing import utils
-from tomography_preprocessing.utils.transformations import S, Ry, Rz
+from ... import utils
+from ...utils.transformations import S, Ry, Rz
 
 
 def read_xf(file: os.PathLike) -> np.ndarray:
