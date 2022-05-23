@@ -10,7 +10,6 @@ import starfile
 from ... import utils
 from ...utils.transformations import S, Ry, Rz
 
-
 def read_xf(file: os.PathLike) -> np.ndarray:
     """Read an IMOD xf file into an (n, 6) numpy array.
 
@@ -149,7 +148,6 @@ def relion_tilt_series_alignment_parameters_to_relion_matrix(
     # compose matrices
     transformations = s2 @ s1 @ r1 @ r0 @ s0
     return np.squeeze(transformations)
-
 
 def write_aligned_tilt_series_star_file(
         original_tilt_series_star_file: Path,

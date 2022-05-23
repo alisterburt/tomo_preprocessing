@@ -7,7 +7,6 @@ import starfile
 
 from ..imod import _utils as imod_utils
 
-
 def get_tilt_series_alignment_parameters(
         alignment_directory: Path,
         tilt_series_id: str
@@ -41,7 +40,7 @@ def remove_ignored_images(
     # _refined shape         (1, m)
     _nominal_tilt_angles = np.array(nominal_tilt_angles).reshape((-1, 1))
     _refined_tilt_angles = refined_tilt_angles.reshape((1, -1))
-
+    
     # calculate difference between refined tilt angles and nominal tilt angles
     # deltas shape           (n, m)
     tilt_angle_deltas = np.abs(_nominal_tilt_angles - _refined_tilt_angles)
@@ -64,10 +63,10 @@ def write_relion_tilt_series_alignment_output(
         output_star_file: Path,
 ):
     shifts_px, euler_angles = get_tilt_series_alignment_parameters(imod_directory, tilt_series_id)
-    tilt_image_df = remove_ignored_images(tilt_image_df, euler_angles)
+    tilt_image_df = remove_ignored_images(tilt_image_df, euler_angles[:,1])
     tilt_image_df[['rlnOriginXAngst', 'rlnOriginYAngst']] = shifts_px * pixel_size
     tilt_image_df[['rlnAngleRot', 'rlnAngleTilt', 'rlnAnglePsi']] = euler_angles
-
+    
     starfile.write({tilt_series_id: tilt_image_df}, output_star_file)
 
 
