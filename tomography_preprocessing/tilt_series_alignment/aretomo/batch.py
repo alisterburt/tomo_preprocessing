@@ -20,7 +20,7 @@ def batch_aretomo(
         output_directory: Path = typer.Option(...),
         aretomo_executable: Path = typer.Option(...),
         do_local_alignments: Optional[bool] = typer.Option(False),
-        n_patches_xy: Optional[tuple[int, int]] = typer.Option(None),
+        n_patches_xy: Optional[tuple[int, int]] = typer.Option((5,4)),
         alignment_pixel_size: Optional[float] = typer.Option(10),
         alignment_thickness: Optional[float] = typer.Option(800),
         tomogram_name: Optional[str] = typer.Option(None)
