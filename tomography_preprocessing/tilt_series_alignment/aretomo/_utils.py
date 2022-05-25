@@ -63,7 +63,7 @@ def write_relion_tilt_series_alignment_output(
         output_star_file: Path,
 ):
     shifts_px, euler_angles = get_tilt_series_alignment_parameters(imod_directory, tilt_series_id)
-    tilt_image_df = tilt_image_df.copy()
+    tilt_image_df = tilt_image_df.copy()  # working on a copy here avoids warnings
     tilt_image_df = remove_ignored_images(tilt_image_df, euler_angles[:,1])
     tilt_image_df[['rlnOriginXAngst', 'rlnOriginYAngst']] = shifts_px * pixel_size
     tilt_image_df[['rlnAngleRot', 'rlnAngleTilt', 'rlnAnglePsi']] = euler_angles
