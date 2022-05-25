@@ -68,5 +68,3 @@ def align_single_tilt_series(
         imod_directory=alignment_dir,
         output_star_file=image_dir / tilt_image_metadata_filename,
     )
-    console.save_text(alignment_dir / 'log.txt', clear=False)
-    console.save_html(alignment_dir / 'log.html')
