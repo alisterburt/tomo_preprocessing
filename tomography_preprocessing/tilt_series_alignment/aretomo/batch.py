@@ -12,7 +12,6 @@ from ...utils.relion import relion_pipeline_job
 
 console = Console(record=True)
 
-
 @cli.command(name='AreTomo')
 @relion_pipeline_job
 def batch_aretomo(
