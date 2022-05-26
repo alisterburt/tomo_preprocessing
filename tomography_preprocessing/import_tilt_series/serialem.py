@@ -67,6 +67,16 @@ def import_tilt_series_from_serial_em(
     tilt_image_files = list(Path().glob(tilt_image_movie_pattern))
     mdoc_files = list(Path().glob(mdoc_file_pattern))
     console.log(f'Found {len(mdoc_files)} mdoc files and {len(tilt_image_files)} image files.')
+    
+    # Raise error if no tilt images or mdocs found
+    if len(tilt_image_files) == 0: 
+        e = 'Could not find any image files'
+        console.log(f'ERROR: {e}')
+        raise RuntimeError(e)
+    if len(mdoc_files) == 0:
+        e = 'Could not find any mdoc files'
+        console.log(f'ERROR: {e}')
+        raise RuntimeError(e)
 
     # Get tomogram ids and construct paths for per-tilt-series STAR files
     tomogram_ids = [
