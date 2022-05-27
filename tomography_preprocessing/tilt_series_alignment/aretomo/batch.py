@@ -45,7 +45,7 @@ def batch_aretomo(
         e = 'Could not find tilt series star file'
         console.log(f'ERROR: {e}')
         raise RuntimeError(e)
-    if aretomo_executable is not None and not Path(aretomo_executable).exists():
+    if aretomo_executable is not None and not aretomo_executable.exists():
         e = 'Could not find AreTomo executable'
         console.log(f'ERROR: {e}')
         raise RuntimeError(e)    
