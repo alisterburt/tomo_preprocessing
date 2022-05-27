@@ -30,6 +30,10 @@ def batch_fiducials(
     tomogram_name: 'rlnTomoName' in RELION tilt-series metadata.
     nominal_fiducial_diameter_nanometres: nominal fiducial diameter in nanometers.
     """
+    if not tilt_series_star_file.exists():
+        e = 'Could not find tilt series star file'
+        console.log(f'ERROR: {e}')
+        raise RuntimeError(e)    
     console.log('Extracting metadata for all tilt series.')
     tilt_series_metadata = utils.star.iterate_tilt_series_metadata(
         tilt_series_star_file=tilt_series_star_file,
