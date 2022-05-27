@@ -32,7 +32,7 @@ def batch_patch_tracking(
     unbinned_patch_size_pixels: size of 2D patches used for alignment.
     patch_overlap_percentage: percentage of overlap between tracked patches.
     """
-    if not Path(tilt_series_star_file).exists():
+    if not tilt_series_star_file.exists():
         e = 'Could not find tilt series star file'
         console.log(f'ERROR: {e}')
         raise RuntimeError(e)
