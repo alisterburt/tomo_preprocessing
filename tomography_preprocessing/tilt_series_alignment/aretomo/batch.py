@@ -41,7 +41,7 @@ def batch_aretomo(
     -------
 
     """
-    if not Path.exists(tilt_series_star_file):
+    if not tilt_series_star_file.exists():
         e = 'Could not find tilt series star file'
         console.log(f'ERROR: {e}')
         raise RuntimeError(e)
