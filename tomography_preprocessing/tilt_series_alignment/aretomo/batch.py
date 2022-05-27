@@ -17,7 +17,7 @@ console = Console(record=True)
 def batch_aretomo(
         tilt_series_star_file: Path = typer.Option(...),
         output_directory: Path = typer.Option(...),
-        aretomo_executable: Path = typer.Option(...),
+        aretomo_executable: Optional[Path] = typer.Option(None),
         do_local_alignments: Optional[bool] = typer.Option(False),
         n_patches_xy: Optional[tuple[int, int]] = typer.Option((5,4)),
         alignment_pixel_size: Optional[float] = typer.Option(10),
@@ -41,6 +41,15 @@ def batch_aretomo(
     -------
 
     """
+    #Check input paths exist
+    if not Path.exists(tilt_series_star_file):
+        e = 'Could not find tilt series star file'
+        console.log(f'ERROR: {e}')
+        raise RuntimeError(e)
+    if aretomo_executable != None and not Path.exists(aretomo_executable):
+        e = 'Could not find AreTomo executable'
+        console.log(f'ERROR: {e}')
+        raise RuntimeError(e)    
     console.log('Extracting metadata for all tilt series.')
     tilt_series_metadata = utils.star.iterate_tilt_series_metadata(
         tilt_series_star_file=tilt_series_star_file,
