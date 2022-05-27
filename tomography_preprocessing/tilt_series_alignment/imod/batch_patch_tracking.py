@@ -32,6 +32,10 @@ def batch_patch_tracking(
     unbinned_patch_size_pixels: size of 2D patches used for alignment.
     patch_overlap_percentage: percentage of overlap between tracked patches.
     """
+    if not tilt_series_star_file.exists():
+        e = 'Could not find tilt series star file'
+        console.log(f'ERROR: {e}')
+        raise RuntimeError(e)
     console.log('Extracting metadata for all tilt series.')
     tilt_series_metadata = utils.star.iterate_tilt_series_metadata(
         tilt_series_star_file=tilt_series_star_file,
