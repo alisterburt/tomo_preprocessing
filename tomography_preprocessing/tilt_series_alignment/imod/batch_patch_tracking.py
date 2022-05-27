@@ -33,7 +33,7 @@ def batch_patch_tracking(
     patch_overlap_percentage: percentage of overlap between tracked patches.
     """
     #Check input paths exist
-    if not Path.exists(tilt_series_star_file):
+    if not Path(tilt_series_star_file).exists():
         e = 'Could not find tilt series star file'
         console.log(f'ERROR: {e}')
         raise RuntimeError(e)
