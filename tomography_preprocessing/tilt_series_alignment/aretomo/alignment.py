@@ -75,25 +75,22 @@ def align_single_tilt_series(
         thickness_for_alignment=alignment_thickness_px,
     )
     #Check AreTomo is producing output, prompt user to check it is installed correctly if not
-    if not ((alignment_dir / tilt_series_id)).with_suffix('.xf').exists():
-        e = f'''{tilt_series_id}.xf failed to generate. Is AreTomo correctly loaded? 
-        If you have not provided an AreTomo executable, test by entering: AreTomo --help; into the terminal
-        If you have provided an executable, test by entering: {aretomo_executable} --help; into the terminal
-        If the AreTomo help page does not appear, ensure AreTomo is correctly installed.
-        '''
+    xf_file = (alignment_dir / tilt_series_id).with_suffix('.xf')
+    if not xf_file.exists():
+        e = f'{tilt_series_id}.xf failed to generate. Is AreTomo correctly loaded and installed? Try running AreTomo outside RELION' 
         console.log(f'ERROR: {e}') 
         raise RuntimeError(e)    
     console.log('Writing STAR file for aligned tilt-series')
+    output_star_file = image_directory / tilt_image_metadata_filename
     write_relion_tilt_series_alignment_output(
         tilt_image_df=tilt_image_df,
         tilt_series_id=tilt_series_id,
         pixel_size=tilt_series_df['rlnMicrographOriginalPixelSize'],
         imod_directory=alignment_dir,
-        output_star_file=image_directory / tilt_image_metadata_filename,
+        output_star_file=output_star_file,
     )
-    console.log('hi')
-    #console.log((image_directory / tilt_image_metadata_filename))
-    #if (image_directory / tilt_image_metadata_filename).exists():  ############# add not
-    #    e = f'Star file for {tilt_series_id} failed to generate'
-    #    console.log(f'ERROR: {e}') 
-    #    raise RuntimeError(e) 
+    #Check star file produced
+    if not output_star_file.exists(): 
+        e = f'Star file for {tilt_series_id} failed to generate'
+        console.log(f'ERROR: {e}') 
+        raise RuntimeError(e)
