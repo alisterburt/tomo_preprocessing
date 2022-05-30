@@ -51,6 +51,10 @@ def align_single_tilt_series(
         image_files=tilt_image_df['rlnMicrographName'],
         output_image_file=image_file_path,
     )
+    if not image_file_path.exists():
+        e = f'Tilt image stack {tilt_series_id}.mrc failed to generate'
+        console.log(f'ERROR: {e}') 
+        raise RuntimeError(e)
     console.log('Running IMOD alignment')
     alignment_function(
         tilt_series_file=image_file_path,
@@ -60,6 +64,11 @@ def align_single_tilt_series(
         output_directory=alignment_dir,
         **alignment_function_kwargs,
     )
+    #Check IMOD is producing xf files as output
+    if not ((alignment_dir / tilt_series_id)).with_suffix('.xf').exists():
+        e = f'{tilt_series_id}.xf failed to generate. Tilt series alignment failed.'
+        console.log(f'ERROR: {e}') 
+        raise RuntimeError(e)    
     console.log('Writing STAR file for aligned tilt-series')
     write_relion_tilt_series_alignment_output(
         tilt_image_df=tilt_image_df,
@@ -68,3 +77,8 @@ def align_single_tilt_series(
         imod_directory=alignment_dir,
         output_star_file=image_dir / tilt_image_metadata_filename,
     )
+    #Check star file produced
+    if not ((image_dir / tilt_image_metadata_filename)).exists():
+        e = f'Star file for {tilt_series_id} failed to generate'
+        console.log(f'ERROR: {e}') 
+        raise RuntimeError(e)    

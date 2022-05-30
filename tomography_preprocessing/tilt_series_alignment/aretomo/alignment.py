@@ -57,6 +57,10 @@ def align_single_tilt_series(
         image_files=tilt_image_df['rlnMicrographName'],
         output_image_file=image_file_path
     )
+    if not image_file_path.exists():
+        e = f'Tilt image stack {tilt_series_id}.mrc failed to generate'
+        console.log(f'ERROR: {e}') 
+        raise RuntimeError(e)
     console.log('Running AreTomo')
     run_aretomo_alignment(
         tilt_series_file=image_file_path,
@@ -70,6 +74,15 @@ def align_single_tilt_series(
         n_patches_xy=n_patches_xy,
         thickness_for_alignment=alignment_thickness_px,
     )
+    #Check AreTomo is producing output, prompt user to check it is installed correctly if not
+    if not ((alignment_dir / tilt_series_id)).with_suffix('.xf').exists():
+        e = f'''{tilt_series_id}.xf failed to generate. Is AreTomo correctly loaded? 
+        If you have not provided an AreTomo executable, test by entering: AreTomo --help; into the terminal
+        If you have provided an executable, test by entering: {aretomo_executable} --help; into the terminal
+        If the AreTomo help page does not appear, ensure AreTomo is correctly installed.
+        '''
+        console.log(f'ERROR: {e}') 
+        raise RuntimeError(e)    
     console.log('Writing STAR file for aligned tilt-series')
     write_relion_tilt_series_alignment_output(
         tilt_image_df=tilt_image_df,
@@ -78,3 +91,9 @@ def align_single_tilt_series(
         imod_directory=alignment_dir,
         output_star_file=image_directory / tilt_image_metadata_filename,
     )
+    console.log('hi')
+    #console.log((image_directory / tilt_image_metadata_filename))
+    #if (image_directory / tilt_image_metadata_filename).exists():  ############# add not
+    #    e = f'Star file for {tilt_series_id} failed to generate'
+    #    console.log(f'ERROR: {e}') 
+    #    raise RuntimeError(e) 
