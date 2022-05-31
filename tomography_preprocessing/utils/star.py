@@ -1,11 +1,14 @@
 from __future__ import annotations
 
 from typing import TYPE_CHECKING, Tuple, Optional
+from rich.console import Console
 
 import pandas as pd
 import starfile
 
 from .. import utils
+
+console = Console(record=True)
 
 if TYPE_CHECKING:
     import os
@@ -34,6 +37,11 @@ def _extract_single_tilt_series_metadata(
 ) -> TiltSeriesMetadata:
     """Get metadata for a specific tilt-series from a tilt-series data STAR file."""
     star = starfile.read(tilt_series_star_file, always_dict=True)
+    #Check if Tomogram Name provided is actually found in the star file
+    if not star['global']['rlnTomoName'].str.contains(tilt_series_id).any():
+        e = 'Specified Tomogram provided in Tomogram-Name is not found in rlnTomoName in the given star file.'
+        console.log(f'ERROR: {e}')
+        raise RuntimeError(e)		
     tilt_series_df = star['global'].set_index('rlnTomoName').loc[tilt_series_id, :]
     tilt_image_df = starfile.read(
         tilt_series_df['rlnTomoTiltSeriesStarFile'], always_dict=True
