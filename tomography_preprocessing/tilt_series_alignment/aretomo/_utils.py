@@ -18,8 +18,8 @@ def get_tilt_series_alignment_parameters(
     """
     tilt_angles = imod_utils.read_tlt(alignment_directory / f'{tilt_series_id}.tlt')
     xf = imod_utils.read_xf(alignment_directory / f'{tilt_series_id}.xf')
-    shifts_px = imod_utils.get_pre_rotation_shifts(xf)
-    in_plane_rotations = imod_utils.get_xf_in_plane_rotations(xf)
+    shifts_px = imod_utils.calculate_specimen_shifts(xf)
+    in_plane_rotations = imod_utils.get_in_plane_rotations(xf)
     euler_angles = np.zeros(shape=(len(tilt_angles), 3))
     euler_angles[:, 1] = tilt_angles
     euler_angles[:, 2] = in_plane_rotations
