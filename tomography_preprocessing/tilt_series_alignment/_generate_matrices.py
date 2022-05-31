@@ -17,7 +17,7 @@ def generate_relion_matrices(
         tomogram_dimensions: Tuple[int, int, int] = typer.Option(...),
         output_directory: Path = typer.Option(...),
 ):
-    """Get RELION format projection matrices from alignment metadata.
+    """RELION format projection matrices from alignment metadata.
 
     A CLI program to generate projection matrices 'rlnTomoProj' for tomograms of
     any size. These matrices are required to use RELION 4 tomo programs.
