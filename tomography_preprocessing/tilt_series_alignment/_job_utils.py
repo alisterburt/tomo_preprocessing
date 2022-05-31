@@ -17,7 +17,7 @@ def create_alignment_job_directory_structure(output_directory: Path) -> Tuple[Pa
     return tilt_series_directory, imod_alignments_directory
 
 
-def relion_tilt_series_alignment_parameters_to_relion_matrix(
+def tilt_series_alignment_parameters_to_relion_projection_matrices(
         specimen_shifts: pd.DataFrame,
         euler_angles: pd.DataFrame,
         tilt_image_dimensions: np.ndarray,

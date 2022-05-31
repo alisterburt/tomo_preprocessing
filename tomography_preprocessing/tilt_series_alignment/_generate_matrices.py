@@ -5,18 +5,23 @@ import numpy as np
 import starfile
 import typer
 
-from .._cli import cli
-from .._job_utils import create_alignment_job_directory_structure, \
-    relion_tilt_series_alignment_parameters_to_relion_matrix
-from ... import utils
+from tomography_preprocessing.tilt_series_alignment._cli import cli
+from tomography_preprocessing.tilt_series_alignment._job_utils import create_alignment_job_directory_structure, \
+    tilt_series_alignment_parameters_to_relion_projection_matrices
+from tomography_preprocessing import utils
 
 
-@cli.command(name='IMOD:generate-matrices')
-def generate_imod_matrices(
+@cli.command(name='generate-matrices')
+def generate_relion_matrices(
         tilt_series_star_file: Path = typer.Option(...),
         tomogram_dimensions: Tuple[int, int, int] = typer.Option(...),
         output_directory: Path = typer.Option(...),
 ):
+    """Get RELION format projection matrices from alignment metadata.
+
+    A CLI program to generate projection matrices 'rlnTomoProj' for tomograms of
+    any size. These matrices are required to use RELION 4 tomo programs.
+    """
     tilt_series_metadata = utils.star.iterate_tilt_series_metadata(
         tilt_series_star_file=tilt_series_star_file,
     )
@@ -28,7 +33,7 @@ def generate_imod_matrices(
         euler_angles = tilt_image_df[['rlnTomoXTilt', 'rlnTomoYTilt', 'rlnTomoZRot']]
         shifts = tilt_image_df[['rlnTomoXShiftAngst', 'rlnTomoYShiftAngst']]
         shifts /= tilt_series_df['rlnMicrographOriginalPixelSize']
-        matrices = relion_tilt_series_alignment_parameters_to_relion_matrix(
+        matrices = tilt_series_alignment_parameters_to_relion_projection_matrices(
             specimen_shifts=shifts,
             euler_angles=euler_angles,
             tilt_image_dimensions=utils.mrc.get_image_dimensions(
