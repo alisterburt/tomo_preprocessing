@@ -6,9 +6,10 @@ import starfile
 import typer
 
 from .._cli import cli
-from .._job_utils import create_alignment_job_directory_structure
+from .._job_utils import create_alignment_job_directory_structure, \
+    relion_tilt_series_alignment_parameters_to_relion_matrix
 from ... import utils
-from ._utils import relion_tilt_series_alignment_parameters_to_relion_matrix
+
 
 @cli.command(name='IMOD:generate-matrices')
 def generate_imod_matrices(
