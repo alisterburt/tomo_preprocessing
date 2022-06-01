@@ -20,7 +20,7 @@ def batch_aretomo(
         output_directory: Path = typer.Option(...),
         do_local_alignments: Optional[bool] = typer.Option(False),
         n_patches_xy: Optional[tuple[int, int]] = typer.Option((5,4)),
-        alignment_pixel_size: Optional[float] = typer.Option(10),
+        alignment_resolution: Optional[float] = typer.Option(10),
         alignment_thickness: Optional[float] = typer.Option(800),
         tomogram_name: Optional[str] = typer.Option(None)
 ):
@@ -32,7 +32,7 @@ def batch_aretomo(
     output_directory: directory in which results will be stored.
     do_local_alignments: flag to enable/disable local alignments in AreTomo.
     n_patches_xy: number of patches in x and y used in local alignments.
-    alignment_pixel_size: pixel size for intermediate alignments.
+    alignment_resolution: resolution for intermediate alignments.
     alignment_thickness: thickness of intermediate reconstructions during alignments in px.
     tomogram_name: 'rlnTomoName' for a specific tilt-series.
 
@@ -56,7 +56,7 @@ def batch_aretomo(
             tilt_series_df=tilt_series_df,
             tilt_image_df=tilt_image_df,
             do_local_alignments=do_local_alignments,
-            alignment_resolution=alignment_pixel_size,
+            alignment_resolution=alignment_resolution,
             n_patches_xy=n_patches_xy,
             alignment_thickness_px=alignment_thickness,
             output_directory=output_directory,
