@@ -12,6 +12,7 @@ from ...utils.relion import relion_pipeline_job
 
 console = Console(record=True)
 
+
 @cli.command(name='AreTomo')
 @relion_pipeline_job
 def batch_aretomo(
@@ -62,7 +63,7 @@ def batch_aretomo(
             tilt_image_df=tilt_image_df,
             aretomo_executable=aretomo_executable,
             do_local_alignments=do_local_alignments,
-            alignment_pixel_size=alignment_pixel_size,
+            alignment_resolution=alignment_pixel_size,
             n_patches_xy=n_patches_xy,
             alignment_thickness_px=alignment_thickness,
             output_directory=output_directory,
