@@ -3,6 +3,7 @@ from pathlib import Path
 import pandas as pd
 from lil_aretomo import run_aretomo_alignment
 from rich.console import Console
+from typing import Tuple
 
 from ._utils import write_relion_tilt_series_alignment_output
 from .._job_utils import create_alignment_job_directory_structure
@@ -15,7 +16,7 @@ def align_single_tilt_series(
         tilt_image_df: pd.DataFrame,
         do_local_alignments: bool,
         alignment_resolution: float,
-        n_patches_xy: tuple[int, int],
+        n_patches_xy: Tuple[int, int],
         alignment_thickness_px: float,
         tilt_angle_offset_correction: bool,
         output_directory: Path,
