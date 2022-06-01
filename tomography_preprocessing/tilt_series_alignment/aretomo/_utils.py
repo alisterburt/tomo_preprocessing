@@ -26,35 +26,6 @@ def get_tilt_series_alignment_parameters(
     return shifts_px, euler_angles,
 
 
-def remove_ignored_images(
-        tilt_image_df: pd.DataFrame,
-        refined_tilt_angles: np.ndarray
-) -> pd.DataFrame:
-    """Detect the images removed from the tilt series by AreTomo (due to poor alignment) and remove them from
-    the image stack and star file
-    """
-    nominal_tilt_angles = tilt_image_df['rlnTomoNominalStageTiltAngle']
-
-    # setup for broadcasting:
-    # _nominal shape         (n, 1)
-    # _refined shape         (1, m)
-    _nominal_tilt_angles = np.array(nominal_tilt_angles).reshape((-1, 1))
-    _refined_tilt_angles = refined_tilt_angles.reshape((1, -1))
-    
-    # calculate difference between refined tilt angles and nominal tilt angles
-    # deltas shape           (n, m)
-    tilt_angle_deltas = np.abs(_nominal_tilt_angles - _refined_tilt_angles)
-
-    # check all deltas are small
-    all_deltas_close = np.allclose(np.min(tilt_angle_deltas, axis=0), 0, atol=0.5)
-    if not all_deltas_close:
-        raise RuntimeError("Could not determine which images were automatically removed.")
-
-    # Get subset of images data with matched tilt-images
-    idx = np.argmin(tilt_angle_deltas, axis=0)
-    return tilt_image_df.iloc[idx]
-
-
 def write_relion_tilt_series_alignment_output(
         tilt_image_df: pd.DataFrame,
         tilt_series_id: str,
@@ -63,8 +34,6 @@ def write_relion_tilt_series_alignment_output(
         output_star_file: Path,
 ):
     shifts_px, euler_angles = get_tilt_series_alignment_parameters(imod_directory, tilt_series_id)
-    tilt_image_df = tilt_image_df.copy()  # working on a copy here avoids warnings
-    tilt_image_df = remove_ignored_images(tilt_image_df, euler_angles[:,1])
     tilt_image_df[['rlnOriginXAngst', 'rlnOriginYAngst']] = shifts_px * pixel_size
     tilt_image_df[['rlnAngleRot', 'rlnAngleTilt', 'rlnAnglePsi']] = euler_angles
     
