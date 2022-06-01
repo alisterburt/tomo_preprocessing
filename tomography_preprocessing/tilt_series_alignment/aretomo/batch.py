@@ -18,7 +18,6 @@ console = Console(record=True)
 def batch_aretomo(
         tilt_series_star_file: Path = typer.Option(...),
         output_directory: Path = typer.Option(...),
-        aretomo_executable: Optional[Path] = typer.Option(None),
         do_local_alignments: Optional[bool] = typer.Option(False),
         n_patches_xy: Optional[tuple[int, int]] = typer.Option((5,4)),
         alignment_pixel_size: Optional[float] = typer.Option(10),
@@ -31,7 +30,6 @@ def batch_aretomo(
     ----------
     tilt_series_star_file: RELION tilt-series STAR file.
     output_directory: directory in which results will be stored.
-    aretomo_executable: path to AreTomo executable.
     do_local_alignments: flag to enable/disable local alignments in AreTomo.
     n_patches_xy: number of patches in x and y used in local alignments.
     alignment_pixel_size: pixel size for intermediate alignments.
@@ -61,7 +59,6 @@ def batch_aretomo(
             tilt_series_id=tilt_series_id,
             tilt_series_df=tilt_series_df,
             tilt_image_df=tilt_image_df,
-            aretomo_executable=aretomo_executable,
             do_local_alignments=do_local_alignments,
             alignment_resolution=alignment_pixel_size,
             n_patches_xy=n_patches_xy,
