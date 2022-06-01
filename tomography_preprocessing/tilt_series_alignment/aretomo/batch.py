@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Optional
+from typing import Optional, Tuple
 
 import typer
 from rich.console import Console
@@ -19,7 +19,7 @@ def batch_aretomo(
         tilt_series_star_file: Path = typer.Option(...),
         output_directory: Path = typer.Option(...),
         do_local_alignments: Optional[bool] = typer.Option(False),
-        n_patches_xy: Optional[tuple[int, int]] = typer.Option((5,4)),
+        n_patches_xy: Optional[Tuple[int, int]] = typer.Option((5,4)),
         alignment_resolution: Optional[float] = typer.Option(10),
         alignment_thickness: Optional[float] = typer.Option(800),
         tomogram_name: Optional[str] = typer.Option(None),
