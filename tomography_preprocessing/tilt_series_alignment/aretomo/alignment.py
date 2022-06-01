@@ -68,7 +68,6 @@ def align_single_tilt_series(
         local_align=do_local_alignments,
         target_pixel_size=alignment_pixel_size,
         n_patches_xy=n_patches_xy,
-        correct_tilt_angle_offset=False,
         thickness_for_alignment=alignment_thickness_px,
     )
     console.log('Writing STAR file for aligned tilt-series')
@@ -79,5 +78,3 @@ def align_single_tilt_series(
         imod_directory=alignment_dir,
         output_star_file=image_directory / tilt_image_metadata_filename,
     )
-    console.save_text(alignment_dir / 'log.txt', clear=False)
-    console.save_html(alignment_dir / 'log.html')

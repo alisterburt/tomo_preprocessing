@@ -24,7 +24,7 @@ pip install -e .
 | Import  | `relion_tomo_import SerialEM`  |
 | Tilt-series alignment  | `relion_tomo_align_tilt_series IMOD:fiducials`  |
 | Tilt-series alignment  | `relion_tomo_align_tilt_series IMOD:patch_tracking`  |
-| Tilt-series alignment with AreTomo  | `relion_tomo_align_tilt_series AreTomo`  |
+| Tilt-series alignment   | `relion_tomo_align_tilt_series AreTomo`  |
 
 A helptext can be found for each program with
 

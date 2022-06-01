@@ -1,20 +1,18 @@
 import os
 from functools import lru_cache
 from pathlib import Path
-from typing import Tuple
 
 import numpy as np
 import pandas as pd
 import starfile
 
 from ... import utils
-from ...utils.transformations import S, Ry, Rz
 
 
 def read_xf(file: os.PathLike) -> np.ndarray:
     """Read an IMOD xf file into an (n, 6) numpy array.
 
-    The file with alignment transforms (option OutputTransformFile) contains one
+    The xf file with alignment transforms contains one
     line per view, each with a linear transformation specified by six numbers:
         A11 A12 A21 A22 DX DY
     where the coordinate (X, Y) is transformed to (X', Y') by:
@@ -29,15 +27,16 @@ def read_tlt(file: os.PathLike) -> np.ndarray:
     return np.loadtxt(fname=file, dtype=float).reshape(-1)
 
 
-def get_pre_rotation_shifts(xf: np.ndarray) -> np.ndarray:
-    """Extract XY shifts from IMOD xf data.
+def get_xf_shifts(xf: np.ndarray) -> np.ndarray:
+    """Extract XY shifts from an IMOD xf file.
 
-    Output is an (n, 2) numpy array of shifts which center tilt-images.
+    Output is an (n, 2) numpy array of XY shifts. Shifts in an xf file are
+    applied after rotations. IMOD xf files contain linear transformations. In
+    the context of tilt-series alignment they contain transformations which are
+    applied to 'align' a tilt-series such that images represent a fixed body rotating
+    around the Y-axis.
     """
-    transformation_matrices = get_xf_transformation_matrices(xf)
-    post_transformation_shifts = xf[:, -2:].reshape((-1, 2, 1))
-    pre_transformation_shifts = transformation_matrices @ post_transformation_shifts
-    return pre_transformation_shifts.reshape((-1, 2))
+    return xf[:, -2:]
 
 
 def get_xf_transformation_matrices(xf: np.ndarray) -> np.ndarray:
@@ -48,7 +47,7 @@ def get_xf_transformation_matrices(xf: np.ndarray) -> np.ndarray:
     return xf[:, :4].reshape((-1, 2, 2))
 
 
-def get_xf_in_plane_rotations(xf: np.ndarray) -> np.ndarray:
+def get_in_plane_rotations(xf: np.ndarray) -> np.ndarray:
     """Extract the in plane rotation angle from IMOD xf data.
 
     Output is an (n, ) numpy array of angles in degrees. This function assumes
@@ -59,12 +58,43 @@ def get_xf_in_plane_rotations(xf: np.ndarray) -> np.ndarray:
     return np.rad2deg(np.arccos(cos_theta))
 
 
+def calculate_specimen_shifts(xf: np.ndarray) -> np.ndarray:
+    """Extract specimen shifts from IMOD xf data.
+
+    Output is an (n, 2) numpy array of XY shifts. Specimen shifts are shifts in
+    the camera plane applied to the projected image of a specimen to align it
+    with a tilt-image.
+
+    This function relies on the fact that:
+    RSP = S'RP where S' = R_invS
+
+    R is a rotation
+    R_inv is the inverse rotation
+    S is a shift vector
+    P is a point
+    S' is a rotated shift vector
+
+    In words: Shifting then rotating is equivalent to rotating then shifting by a
+    rotated shift-vector.
+
+    In IMOD, the rotation center is at (N - 1) / 2. In RELION, the rotation center
+    is at N / 2. An extra half-pixel shift is added to shifts, accounting for
+    these differences.
+    """
+    rotation_matrices = get_xf_transformation_matrices(xf)
+    inverse_rotation_matrices = rotation_matrices.transpose((0, 2, 1))
+
+    image_shifts = xf[:, -2:].reshape((-1, 2, 1))
+    specimen_shifts = inverse_rotation_matrices @ -image_shifts
+    return specimen_shifts.reshape((-1, 2)) + 0.5
+
+
 @lru_cache(maxsize=100)
 def get_etomo_basename(imod_directory: Path) -> str:
     """Get the tilt-series stack basename from an Etomo directory."""
     edf_files = list(imod_directory.glob('*.edf'))
     if len(edf_files) != 1:
-        raise RuntimeError('singular Etomo directive file not found')
+        raise RuntimeError('Multiple Etomo directive files found')
     return edf_files[0].stem
 
 
@@ -83,22 +113,12 @@ def get_edf_file(imod_directory: Path) -> Path:
     return imod_directory / f'{get_etomo_basename(imod_directory)}.edf'
 
 
-def get_tilt_series_alignment_parameters(
-        imod_directory: Path
-) -> Tuple[np.ndarray, np.ndarray]:
-    """Get the tilt-series alignment parameters from an IMOD directory.
-
-    Shifts are in pixels and should be applied before rotations.
-    Rotations are ZYZ intrinsic Euler angles which transform the volume.
-    """
-    xf = read_xf(get_xf_file(imod_directory))
-    shifts_px = get_pre_rotation_shifts(xf)
-    in_plane_rotations = get_xf_in_plane_rotations(xf)
-    tilt_angles = read_tlt(get_tlt_file(imod_directory))
-    euler_angles = np.zeros(shape=(len(tilt_angles), 3))
+def get_xyz_extrinsic_euler_angles(xf: np.ndarray, tilt_angles: np.ndarray) -> np.ndarray:
+    """Get XYZ extrinsic Euler angles which rotate the specimen."""
+    euler_angles = np.zeros(shape=(len(xf), 3))
     euler_angles[:, 1] = tilt_angles
-    euler_angles[:, 2] = in_plane_rotations
-    return shifts_px, euler_angles
+    euler_angles[:, 2] = get_in_plane_rotations(xf)
+    return euler_angles
 
 
 def write_relion_tilt_series_alignment_output(
@@ -108,47 +128,16 @@ def write_relion_tilt_series_alignment_output(
         imod_directory: Path,
         output_star_file: Path,
 ):
-    shifts_px, euler_angles = get_tilt_series_alignment_parameters(imod_directory)
-    tilt_image_df[['rlnOriginXAngst', 'rlnOriginYAngst']] = shifts_px * pixel_size
-    tilt_image_df[['rlnAngleRot', 'rlnAngleTilt', 'rlnAnglePsi']] = euler_angles
+    """Write output from a tilt-series alignment experiment."""
+    xf = read_xf(get_xf_file(imod_directory))
+    tlt = read_tlt(get_tlt_file(imod_directory))
+    shifts_px = calculate_specimen_shifts(xf)
+
+    tilt_image_df[['rlnTomoXShiftAngst', 'rlnTomoYShiftAngst']] = shifts_px * pixel_size
+    tilt_image_df[['rlnTomoXTilt', 'rlnTomoYTilt', 'rlnTomoZRot']] = \
+        get_xyz_extrinsic_euler_angles(xf, tlt)
 
     starfile.write({tilt_series_id: tilt_image_df}, output_star_file)
-
-
-def relion_tilt_series_alignment_parameters_to_relion_matrix(
-        tilt_image_shifts: pd.DataFrame,
-        euler_angles: pd.DataFrame,
-        tilt_image_dimensions: np.ndarray,
-        tomogram_dimensions: np.ndarray,
-):
-    """Generate affine matrices transforming points in 3D to 2D in tilt-images.
-
-    Projection model:
-    3D specimen is rotated about its center then translated such that the projection
-    of points onto the XY-plane gives their position in a tilt-image.
-
-    More specifically
-    - 3D specimen is rotated about its center by
-        - shifting the origin to the specimen center
-        - rotated extrinsically about the Y-axis by the tilt angle
-        - rotated extrinsically about the Z-axis by the in plane rotation angle
-    - 3D specimen is translated to align coordinate system with tilt-image
-        - move center-of-rotation of specimen to center of tilt-image
-        - move center-of-rotation of specimen to rotation center in tilt-image
-    """
-    tilt_image_center = (tilt_image_dimensions - 1) / 2  # 2D rotation center in IMOD
-    specimen_center = tomogram_dimensions / 2
-
-    # Transformations, defined in order of application
-    s0 = S(-specimen_center)  # shift specimen center to the origin
-    r0 = Ry(euler_angles['rlnAngleTilt'])  # rotate around Y-axis by the tilt angle
-    r1 = Rz(euler_angles['rlnAnglePsi'])  # rotate around Z-axis by in plane rotation angle
-    s1 = S(tilt_image_center)  # move center-of-rotation of specimen to center of tilt-image
-    s2 = S(-tilt_image_shifts)  # move center-of-rotation to correct position in tilt-image
-
-    # compose matrices
-    transformations = s2 @ s1 @ r1 @ r0 @ s0
-    return np.squeeze(transformations)
 
 
 def write_aligned_tilt_series_star_file(
@@ -156,9 +145,9 @@ def write_aligned_tilt_series_star_file(
         output_directory: Path,
 ):
     df = starfile.read(original_tilt_series_star_file, always_dict=True)['global']
-    tilt_series_metadata = list(utils.star.iterate_tilt_series_metadata(
-        tilt_series_star_file=original_tilt_series_star_file
-    ))
+    tilt_series_metadata = list(
+        utils.star.iterate_tilt_series_metadata(original_tilt_series_star_file)
+    )
     # update individual tilt series star files
     df['rlnTomoTiltSeriesStarFile'] = [
         output_directory / 'tilt_series' / f'{tilt_series_id}.star'
