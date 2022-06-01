@@ -17,7 +17,7 @@ def align_single_tilt_series(
         alignment_resolution: float,
         n_patches_xy: tuple[int, int],
         alignment_thickness_px: float,
-        do_tilt_angle_offset_correct: bool,
+        tilt_angle_offset_correction: bool,
         output_directory: Path,
 ):
     """Align a single tilt-series in AreTomo using RELION tilt-series metadata.
@@ -31,7 +31,7 @@ def align_single_tilt_series(
     alignment_resolution: resolution for alignments in angstroms.
     n_patches_xy: number of patches in x and y for local alignments
     alignment_thickness_px: thickness of intermediate reconstruction during alignments.
-    do_tilt_angle_offset_correct: flag to enable/disable stage tilt offset correction (-TiltCor) in AreTomo
+    tilt_angle_offset_correction: flag to enable/disable stage tilt offset correction (-TiltCor) in AreTomo
     output_directory: directory in which results will be stored.
     """
     console = Console(record=True)
@@ -67,7 +67,7 @@ def align_single_tilt_series(
         local_align=do_local_alignments,
         target_pixel_size=alignment_resolution / 2,
         n_patches_xy=n_patches_xy,
-        correct_tilt_angle_offset=do_tilt_angle_offset_correct,
+        correct_tilt_angle_offset=tilt_angle_offset_correction,
         thickness_for_alignment=alignment_thickness_px,
     )
     console.log('Writing STAR file for aligned tilt-series')

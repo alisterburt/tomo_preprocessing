@@ -23,7 +23,7 @@ def batch_aretomo(
         alignment_resolution: Optional[float] = typer.Option(10),
         alignment_thickness: Optional[float] = typer.Option(800),
         tomogram_name: Optional[str] = typer.Option(None),
-        do_tilt_angle_offset_correct: Optional[bool] = typer.Option(False),
+        tilt_angle_offset_correction: Optional[bool] = typer.Option(False),
 ):
     """Align one or multiple tilt-series in AreTomo using RELION tilt-series metadata.
 
@@ -36,7 +36,7 @@ def batch_aretomo(
     alignment_resolution: resolution for intermediate alignments.
     alignment_thickness: thickness of intermediate reconstructions during alignments in px.
     tomogram_name: 'rlnTomoName' for a specific tilt-series.
-    do_tilt_angle_offset_correct: flag to enable/disable stage tilt offset correction (-TiltCor) in AreTomo
+    tilt_angle_offset_correction: flag to enable/disable stage tilt offset correction (-TiltCor) in AreTomo
 
     Returns
     -------
@@ -61,7 +61,7 @@ def batch_aretomo(
             alignment_resolution=alignment_resolution,
             n_patches_xy=n_patches_xy,
             alignment_thickness_px=alignment_thickness,
-            do_tilt_angle_offset_correct=do_tilt_angle_offset_correct,
+            tilt_angle_offset_correction=tilt_angle_offset_correction,
             output_directory=output_directory,
         )
     if tomogram_name is None:  # write out STAR file for set of tilt-series
