@@ -75,7 +75,7 @@ def write_single_tilt_series_alignment_output(
         alignment_directory: Path,
         output_star_file: Path,
 ):
-    """Write output from a tilt-series alignment experiment."""
+    """Write metadata from a tilt-series alignment experiment."""
     xf, tlt = get_tilt_series_alignment_data(alignment_directory, tilt_series_id)
 
     shifts_px = calculate_specimen_shifts(xf)

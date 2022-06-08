@@ -79,5 +79,5 @@ def align_single_tilt_series(
         tilt_series_id=tilt_series_id,
         pixel_size=tilt_series_df['rlnMicrographOriginalPixelSize'],
         alignment_directory=aretomo_directory,
-        output_star_file=tilt_series_directory / tilt_image_metadata_filename,
+        output_star_file=alignments_directory / tilt_image_metadata_filename,
     )
