@@ -7,18 +7,23 @@ import starfile
 
 from ..imod import _utils as imod_utils
 
-def get_tilt_series_alignment_data(
+def get_tilt_series_alignment_parameters(
         alignment_directory: Path,
         tilt_series_id: str
-) -> np.ndarray:
+) -> Tuple[np.ndarray, np.ndarray]:
     """Get tilt-series alignment parameters from an AreTomo alignment directory.
 
     Shifts are in pixels and should be applied before rotations.
     Rotations are ZYZ intrinsic Euler angles which transform the volume.
     """
+    tilt_angles = imod_utils.read_tlt(alignment_directory / f'{tilt_series_id}.tlt')
     xf = imod_utils.read_xf(alignment_directory / f'{tilt_series_id}.xf')
-    tlt = imod_utils.read_tlt(alignment_directory / f'{tilt_series_id}.tlt')
-    return xf, tlt
+    shifts_px = imod_utils.calculate_specimen_shifts(xf)
+    in_plane_rotations = imod_utils.get_in_plane_rotations(xf)
+    euler_angles = np.zeros(shape=(len(tilt_angles), 3))
+    euler_angles[:, 1] = tilt_angles
+    euler_angles[:, 2] = in_plane_rotations
+    return shifts_px, euler_angles,
 
 
 def write_relion_tilt_series_alignment_output(
@@ -28,12 +33,9 @@ def write_relion_tilt_series_alignment_output(
         imod_directory: Path,
         output_star_file: Path,
 ):
-    """Write output from a tilt-series alignment experiment."""
-    xf, tlt = get_tilt_series_alignment_data(imod_directory, tilt_series_id)
-    shifts_px = imod_utils.calculate_specimen_shifts(xf)
-    tilt_image_df[['rlnTomoXShiftAngst', 'rlnTomoYShiftAngst']] = shifts_px * pixel_size
-    tilt_image_df[['rlnTomoXTilt', 'rlnTomoYTilt', 'rlnTomoZRot']] = \
-        imod_utils.get_xyz_extrinsic_euler_angles(xf, tlt)
+    shifts_px, euler_angles = get_tilt_series_alignment_parameters(imod_directory, tilt_series_id)
+    tilt_image_df[['rlnOriginXAngst', 'rlnOriginYAngst']] = shifts_px * pixel_size
+    tilt_image_df[['rlnAngleRot', 'rlnAngleTilt', 'rlnAnglePsi']] = euler_angles
     
     starfile.write({tilt_series_id: tilt_image_df}, output_star_file)
 
