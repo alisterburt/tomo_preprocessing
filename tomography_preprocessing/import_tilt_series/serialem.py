@@ -125,8 +125,6 @@ def import_tilt_series_from_serial_em(
             overwrite=True
         )
     console.log(f'Wrote STAR files for {len(tilt_series_star_files)} tilt-series.')
-    console.save_html(str(output_directory / 'log.html'), clear=False)
-    console.save_text(str(output_directory / 'log.txt'), clear=False)
     return global_star_file
 
 
