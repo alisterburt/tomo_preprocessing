@@ -102,7 +102,7 @@ def import_tilt_series_from_serial_em(
     global_df['rlnSphericalAberration'] = spherical_aberration
     global_df['rlnAmplitudeContrast'] = amplitude_contrast
     global_df['rlnMicrographOriginalPixelSize'] = nominal_pixel_size
-    global_df['rlnTomoHand'] = -1 if invert_defocus_handedness else 1:
+    global_df['rlnTomoHand'] = -1 if invert_defocus_handedness else 1
     if mtf_file is not None:
         global_df['rlnMtfFileName'] = mtf_file
 
