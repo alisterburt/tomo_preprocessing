@@ -7,7 +7,7 @@ import starfile
 
 from ..imod import _utils as imod_utils
 
-def get_tilt_series_alignment_parameters(
+def get_tilt_series_alignment_data(
         alignment_directory: Path,
         tilt_series_id: str
 ) -> np.ndarray:
@@ -18,8 +18,7 @@ def get_tilt_series_alignment_parameters(
     """
     xf = imod_utils.read_xf(alignment_directory / f'{tilt_series_id}.xf')
     tlt = imod_utils.read_tlt(alignment_directory / f'{tilt_series_id}.tlt')
-    shifts_px = imod_utils.calculate_specimen_shifts(xf)
-    return shifts_px, xf, tlt
+    return xf, tlt
 
 
 def write_relion_tilt_series_alignment_output(
@@ -30,7 +29,8 @@ def write_relion_tilt_series_alignment_output(
         output_star_file: Path,
 ):
     """Write output from a tilt-series alignment experiment."""
-    shifts_px, xf, tlt = get_tilt_series_alignment_parameters(imod_directory, tilt_series_id)
+    xf, tlt = get_tilt_series_alignment_data(imod_directory, tilt_series_id)
+    shifts_px = imod_utils.calculate_specimen_shifts(xf)
     tilt_image_df[['rlnTomoXShiftAngst', 'rlnTomoYShiftAngst']] = shifts_px * pixel_size
     tilt_image_df[['rlnTomoXTilt', 'rlnTomoYTilt', 'rlnTomoZRot']] = \
         imod_utils.get_xyz_extrinsic_euler_angles(xf, tlt)
