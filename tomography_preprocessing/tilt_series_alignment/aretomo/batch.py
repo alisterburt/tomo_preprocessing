@@ -5,8 +5,9 @@ import typer
 from rich.console import Console
 
 from ._utils import write_aligned_tilt_series_star_file
-from .alignment import align_single_tilt_series
+from .align_tilt_series import align_single_tilt_series
 from .._cli import cli
+from .._job_utils import create_alignment_job_directory_structure
 from ... import utils
 from ...utils.relion import relion_pipeline_job
 
@@ -47,6 +48,8 @@ def batch_aretomo(
         console.log(f'ERROR: {e}')
         raise RuntimeError(e)
     console.log('Extracting metadata for all tilt series.')
+    tilt_series_directory, external_directory, alignments_directory = \
+        create_alignment_job_directory_structure(output_directory)
     tilt_series_metadata = utils.star.iterate_tilt_series_metadata(
         tilt_series_star_file=tilt_series_star_file,
         tilt_series_id=tomogram_name
@@ -62,7 +65,7 @@ def batch_aretomo(
             n_patches_xy=n_patches_xy,
             alignment_thickness_px=alignment_thickness,
             tilt_angle_offset_correction=tilt_angle_offset_correction,
-            output_directory=output_directory,
+            job_directory=external_directory / tilt_series_id,
         )
     if tomogram_name is None:  # write out STAR file for set of tilt-series
         console.log('Writing aligned_tilt_series.star')

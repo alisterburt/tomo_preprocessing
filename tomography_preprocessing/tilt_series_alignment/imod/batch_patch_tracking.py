@@ -6,7 +6,7 @@ from yet_another_imod_wrapper import run_patch_tracking_based_alignment
 from rich.console import Console
 
 import tomography_preprocessing.tilt_series_alignment.aretomo._utils
-from .alignment import align_single_tilt_series
+from .align_tilt_series import align_single_tilt_series
 from .._cli import cli
 from ... import utils
 from ...utils.relion import relion_pipeline_job

@@ -5,8 +5,8 @@ import typer
 from yet_another_imod_wrapper import run_fiducial_based_alignment
 from rich.console import Console
 
-import tomography_preprocessing.tilt_series_alignment.aretomo._utils
-from .alignment import align_single_tilt_series
+from .._job_utils import write_aligned_tilt_series_star_file
+from .align_tilt_series import align_single_tilt_series
 from .._cli import cli
 from ... import utils
 from ...utils.relion import relion_pipeline_job
@@ -53,7 +53,7 @@ def batch_fiducials(
         )
     if tomogram_name is None:  # write out STAR file for set of tilt-series
         console.log('Writing aligned_tilt_series.star')
-        tomography_preprocessing.tilt_series_alignment.aretomo._utils.write_aligned_tilt_series_star_file(
+        write_aligned_tilt_series_star_file(
             original_tilt_series_star_file=tilt_series_star_file,
             output_directory=output_directory
         )

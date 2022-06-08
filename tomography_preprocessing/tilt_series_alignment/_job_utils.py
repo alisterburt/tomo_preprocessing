@@ -3,18 +3,25 @@ from typing import Tuple
 
 import numpy as np
 import pandas as pd
+import starfile
 
+from .imod._utils import get_tilt_series_alignment_data, calculate_specimen_shifts, \
+    get_xyz_extrinsic_euler_angles
+from .. import utils
 from ..utils.transformations import S, Rx, Ry, Rz
 
 
-def create_alignment_job_directory_structure(output_directory: Path) -> Tuple[Path, Path]:
-    """Create directory structure for an IMOD alignment job."""
+def create_alignment_job_directory_structure(output_directory: Path) -> Tuple[Path, Path, Path]:
+    """Create directory structure for a tilt-series alignment job."""
     tilt_series_directory = output_directory / 'tilt_series'
     tilt_series_directory.mkdir(parents=True, exist_ok=True)
 
-    imod_alignments_directory = output_directory / 'alignments'
-    imod_alignments_directory.mkdir(parents=True, exist_ok=True)
-    return tilt_series_directory, imod_alignments_directory
+    external_directory = output_directory / 'external'
+    external_directory.mkdir(parents=True, exist_ok=True)
+
+    alignments_directory = output_directory / 'alignments'
+    alignments_directory.mkdir(parents=True, exist_ok=True)
+    return tilt_series_directory, external_directory, alignments_directory
 
 
 def tilt_series_alignment_parameters_to_relion_projection_matrices(
@@ -59,3 +66,51 @@ def tilt_series_alignment_parameters_to_relion_projection_matrices(
     # compose matrices
     transformations = s2 @ s1 @ r2 @ r1 @ r0 @ s0
     return np.squeeze(transformations)
+
+
+def write_single_tilt_series_alignment_output(
+        tilt_image_df: pd.DataFrame,
+        tilt_series_id: str,
+        pixel_size: float,
+        alignment_directory: Path,
+        output_star_file: Path,
+):
+    """Write output from a tilt-series alignment experiment."""
+    xf, tlt = get_tilt_series_alignment_data(alignment_directory, tilt_series_id)
+
+    shifts_px = calculate_specimen_shifts(xf)
+    tilt_image_df[['rlnTomoXShiftAngst', 'rlnTomoYShiftAngst']] = shifts_px * pixel_size
+
+    euler_angles = get_xyz_extrinsic_euler_angles(xf, tlt)
+    tilt_image_df[['rlnTomoXTilt', 'rlnTomoYTilt', 'rlnTomoZRot']] = euler_angles
+
+    starfile.write({tilt_series_id: tilt_image_df}, output_star_file)
+
+
+def write_aligned_tilt_series_star_file(
+        original_tilt_series_star_file: Path,
+        output_directory: Path,
+):
+    """Write output from a batch of tilt-series alignment experiments."""
+    df = starfile.read(original_tilt_series_star_file, always_dict=True)['global']
+    tilt_series_ids = [
+        tilt_series_id
+        for tilt_series_id, _, _
+        in utils.star.iterate_tilt_series_metadata(original_tilt_series_star_file)
+    ]
+
+    # update individual tilt series star files
+    df['rlnTomoTiltSeriesStarFile'] = [
+        output_directory / 'tilt_series' / f'{tilt_series_id}.star'
+        for tilt_series_id in tilt_series_ids
+    ]
+    df['EtomoDirectiveFile'] = [
+        output_directory / 'external' / tilt_series_id / f'{tilt_series_id}.edf'
+        for tilt_series_id in tilt_series_ids
+    ]
+    etomo_dir_exist = any(df['EtomoDirectiveFile'].apply(lambda x: Path(x).exists()))
+    if etomo_dir_exist is False:
+        df = df.drop(columns=['EtomoDirectiveFile'])
+    # check which output files were succesfully generated, take only those
+    df = df[df['rlnTomoTiltSeriesStarFile'].apply(lambda x: x.exists())]
+    starfile.write({'global': df}, output_directory / 'aligned_tilt_series.star')
