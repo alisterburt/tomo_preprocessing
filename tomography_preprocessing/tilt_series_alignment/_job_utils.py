@@ -1,14 +1,15 @@
 from pathlib import Path
-from typing import Tuple
+from typing import Tuple, Optional
 
 import numpy as np
 import pandas as pd
 import starfile
+import typer
 
 from .imod._utils import get_tilt_series_alignment_data, calculate_specimen_shifts, \
     get_xyz_extrinsic_euler_angles
-from .. import utils
 from ..utils.transformations import S, Rx, Ry, Rz
+from ._cli import cli
 
 
 def create_alignment_job_directory_structure(output_directory: Path) -> Tuple[Path, Path, Path]:
@@ -87,30 +88,27 @@ def write_single_tilt_series_alignment_output(
     starfile.write({tilt_series_id: tilt_image_df}, output_star_file)
 
 
+@cli.command(name='write-global-output')
 def write_aligned_tilt_series_star_file(
-        original_tilt_series_star_file: Path,
-        output_directory: Path,
+        original_tilt_series_star_file: Path = typer.Option(...),
+        job_directory: Path = typer.Option(...)
 ):
     """Write output from a batch of tilt-series alignment experiments."""
     df = starfile.read(original_tilt_series_star_file, always_dict=True)['global']
-    tilt_series_ids = [
-        tilt_series_id
-        for tilt_series_id, _, _
-        in utils.star.iterate_tilt_series_metadata(original_tilt_series_star_file)
-    ]
 
     # update individual tilt series star files
     df['rlnTomoTiltSeriesStarFile'] = [
-        output_directory / 'tilt_series' / f'{tilt_series_id}.star'
-        for tilt_series_id in tilt_series_ids
+        job_directory / 'alignments' / f'{tilt_series_id}.star'
+        for tilt_series_id in df['rlnTomoName']
     ]
     df['EtomoDirectiveFile'] = [
-        output_directory / 'external' / tilt_series_id / f'{tilt_series_id}.edf'
-        for tilt_series_id in tilt_series_ids
+        job_directory / 'external' / tilt_series_id / f'{tilt_series_id}.edf'
+        for tilt_series_id in df['rlnTomoName']
     ]
-    etomo_dir_exist = any(df['EtomoDirectiveFile'].apply(lambda x: Path(x).exists()))
-    if etomo_dir_exist is False:
+    etomo_directives_exist = any(df['EtomoDirectiveFile'].apply(lambda x: Path(x).exists()))
+    if etomo_directives_exist is False:
         df = df.drop(columns=['EtomoDirectiveFile'])
+
     # check which output files were succesfully generated, take only those
     df = df[df['rlnTomoTiltSeriesStarFile'].apply(lambda x: x.exists())]
-    starfile.write({'global': df}, output_directory / 'aligned_tilt_series.star')
+    starfile.write({'global': df}, job_directory / 'aligned_tilt_series.star')
