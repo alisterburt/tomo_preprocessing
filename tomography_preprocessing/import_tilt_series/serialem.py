@@ -27,6 +27,7 @@ def import_tilt_series_from_serial_em(
         voltage: float = typer.Option(...),
         spherical_aberration: float = typer.Option(...),
         amplitude_contrast: float = typer.Option(...),
+        invert_defocus_handedness: Optional[bool] = typer.Option(None),
         dose_per_tilt_image: Optional[float] = None,
         prefix: str = '',
         mtf_file: Optional[Path] = None,
@@ -45,6 +46,9 @@ def import_tilt_series_from_serial_em(
     voltage : Acceleration voltage (keV)
     spherical_aberration : Spherical aberration (mm)
     amplitude_contrast : Amplitude contrast fraction (e.g. 0.1)
+    invert_defocus_handedess: Set this to flip the handedness of the defocus geometry (default=1). 
+        The value of this parameter is either +1 or -1, and it describes whether the focus 
+        increases or decreases as a function of Z distance. It has to be determined experimentally. 
     dose_per_tilt_image : dose in electrons per square angstrom in each tilt image.
         If set, this will override the values from the mdoc file
     prefix : a prefix which will be added to the tilt-series name.
@@ -77,7 +81,7 @@ def import_tilt_series_from_serial_em(
         e = 'Could not find any mdoc files'
         console.log(f'ERROR: {e}')
         raise RuntimeError(e)
-
+    
     # Get tomogram ids and construct paths for per-tilt-series STAR files
     tomogram_ids = [
         utils.mdoc.construct_tomogram_id(mdoc_file, prefix)
@@ -98,6 +102,7 @@ def import_tilt_series_from_serial_em(
     global_df['rlnSphericalAberration'] = spherical_aberration
     global_df['rlnAmplitudeContrast'] = amplitude_contrast
     global_df['rlnMicrographOriginalPixelSize'] = nominal_pixel_size
+    global_df['rlnTomoHand'] = -1 if invert_defocus_handedness else 1
     if mtf_file is not None:
         global_df['rlnMtfFileName'] = mtf_file
 
