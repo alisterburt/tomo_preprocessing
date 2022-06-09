@@ -65,7 +65,7 @@ def batch_aretomo(
             n_patches_xy=n_patches_xy,
             alignment_thickness_px=alignment_thickness,
             tilt_angle_offset_correction=tilt_angle_offset_correction,
-            job_directory=external_directory / tilt_series_id,
+            job_directory=output_directory,
         )
     if tomogram_name is None:  # write out STAR file for set of tilt-series
         console.log('Writing aligned_tilt_series.star')
