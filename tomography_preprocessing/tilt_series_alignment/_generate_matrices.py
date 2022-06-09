@@ -17,15 +17,18 @@ def generate_relion_matrices(
         tomogram_dimensions: Tuple[int, int, int] = typer.Option(...),
         output_directory: Path = typer.Option(...),
 ):
-    """RELION format projection matrices from alignment metadata.
+    """RELION projection matrices from alignment metadata.
 
     A CLI program to generate projection matrices 'rlnTomoProj' for tomograms of
     any size. These matrices are required to use RELION 4 tomo programs.
+
+    This function is now deprecated and matrices are calcuated internally
+    as tomograms are reconstructed in RELION.
     """
     tilt_series_metadata = utils.star.iterate_tilt_series_metadata(
         tilt_series_star_file=tilt_series_star_file,
     )
-    image_directory, alignments_directory = \
+    tilt_series_directory, external_directory, alignments_directory = \
         create_alignment_job_directory_structure(output_directory)
     tilt_image_star_files = []
 
@@ -40,7 +43,7 @@ def generate_relion_matrices(
                 tilt_image_df['rlnMicrographName'][0])[:2],
             tomogram_dimensions=np.array(tomogram_dimensions)
         )
-        tilt_image_star_file = image_directory / f'{tilt_series_id}.star'
+        tilt_image_star_file = alignments_directory / f'{tilt_series_id}.star'
         tilt_image_star_files.append(tilt_image_star_file)
         projection_matrix_labels = [f'rlnTomoProj{ax}' for ax in 'XYZW']
         for idx, label in enumerate(projection_matrix_labels):

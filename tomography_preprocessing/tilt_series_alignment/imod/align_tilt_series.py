@@ -4,8 +4,10 @@ from typing import Callable, Dict, Any
 import pandas as pd
 from rich.console import Console
 
-from .._job_utils import create_alignment_job_directory_structure
-from ._utils import write_relion_tilt_series_alignment_output
+from .._job_utils import (
+    create_alignment_job_directory_structure,
+    write_single_tilt_series_alignment_output
+)
 from ... import utils
 
 
@@ -31,10 +33,10 @@ def align_single_tilt_series(
     console = Console(record=True)
 
     # Create output directory structure
-    image_dir, all_alignments_dir = \
+    stack_directory, external_directory, metadata_directory = \
         create_alignment_job_directory_structure(output_directory)
-    alignment_dir = all_alignments_dir / tilt_series_id
-    alignment_dir.mkdir(parents=True, exist_ok=True)
+    imod_directory = external_directory / tilt_series_id
+    imod_directory.mkdir(parents=True, exist_ok=True)
 
     # Establish filenames
     tilt_series_filename = f'{tilt_series_id}.mrc'
@@ -46,25 +48,26 @@ def align_single_tilt_series(
     # Create tilt-series stack and align using IMOD
     # implicit assumption - one tilt-axis angle per tilt-series
     console.log('Creating tilt series stack')
-    image_file_path = image_dir / tilt_series_filename
     utils.image.stack_image_files(
         image_files=tilt_image_df['rlnMicrographName'],
-        output_image_file=image_file_path,
+        output_image_file=stack_directory / tilt_series_filename,
     )
     console.log('Running IMOD alignment')
     alignment_function(
-        tilt_series_file=image_file_path,
+        tilt_series_file=stack_directory / tilt_series_filename,
         tilt_angles=tilt_image_df['rlnTomoNominalStageTiltAngle'],
         pixel_size=tilt_series_df['rlnMicrographOriginalPixelSize'],
         nominal_rotation_angle=tilt_image_df['rlnTomoNominalTiltAxisAngle'][0],
-        output_directory=alignment_dir,
+        output_directory=imod_directory,
         **alignment_function_kwargs,
     )
     console.log('Writing STAR file for aligned tilt-series')
-    write_relion_tilt_series_alignment_output(
-        tilt_image_df=tilt_image_df,
-        tilt_series_id=tilt_series_id,
-        pixel_size=tilt_series_df['rlnMicrographOriginalPixelSize'],
-        imod_directory=alignment_dir,
-        output_star_file=image_dir / tilt_image_metadata_filename,
-    )
+    output_xf_file = imod_directory / f'{tilt_series_id}.xf'
+    if output_xf_file.exists():
+        write_single_tilt_series_alignment_output(
+            tilt_image_df=tilt_image_df,
+            tilt_series_id=tilt_series_id,
+            pixel_size=tilt_series_df['rlnMicrographOriginalPixelSize'],
+            alignment_directory=imod_directory,
+            output_star_file=metadata_directory / tilt_image_metadata_filename,
+        )

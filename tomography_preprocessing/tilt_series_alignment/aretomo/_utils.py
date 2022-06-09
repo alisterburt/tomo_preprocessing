@@ -1,43 +1,6 @@
 from pathlib import Path
-from typing import Tuple
 
-import numpy as np
-import pandas as pd
 import starfile
-
-from ..imod import _utils as imod_utils
-
-def get_tilt_series_alignment_parameters(
-        alignment_directory: Path,
-        tilt_series_id: str
-) -> Tuple[np.ndarray, np.ndarray]:
-    """Get tilt-series alignment parameters from an AreTomo alignment directory.
-
-    Shifts are in pixels and should be applied before rotations.
-    Rotations are ZYZ intrinsic Euler angles which transform the volume.
-    """
-    tilt_angles = imod_utils.read_tlt(alignment_directory / f'{tilt_series_id}.tlt')
-    xf = imod_utils.read_xf(alignment_directory / f'{tilt_series_id}.xf')
-    shifts_px = imod_utils.calculate_specimen_shifts(xf)
-    in_plane_rotations = imod_utils.get_in_plane_rotations(xf)
-    euler_angles = np.zeros(shape=(len(tilt_angles), 3))
-    euler_angles[:, 1] = tilt_angles
-    euler_angles[:, 2] = in_plane_rotations
-    return shifts_px, euler_angles,
-
-
-def write_relion_tilt_series_alignment_output(
-        tilt_image_df: pd.DataFrame,
-        tilt_series_id: str,
-        pixel_size: float,
-        imod_directory: Path,
-        output_star_file: Path,
-):
-    shifts_px, euler_angles = get_tilt_series_alignment_parameters(imod_directory, tilt_series_id)
-    tilt_image_df[['rlnOriginXAngst', 'rlnOriginYAngst']] = shifts_px * pixel_size
-    tilt_image_df[['rlnAngleRot', 'rlnAngleTilt', 'rlnAnglePsi']] = euler_angles
-    
-    starfile.write({tilt_series_id: tilt_image_df}, output_star_file)
 
 
 def write_aligned_tilt_series_star_file(
