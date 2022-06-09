@@ -52,7 +52,6 @@ def batch_aretomo(
         tilt_series_star_file=tilt_series_star_file,
         tilt_series_id=tomogram_name
     ))
-    console.log(tilt_series_metadata)
     for tilt_series_id, tilt_series_df, tilt_image_df in tilt_series_metadata:
         console.log(f'Aligning {tilt_series_id}...')
         align_single_tilt_series(
