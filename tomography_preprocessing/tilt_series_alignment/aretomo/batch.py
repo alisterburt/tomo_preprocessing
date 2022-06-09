@@ -48,12 +48,11 @@ def batch_aretomo(
         console.log(f'ERROR: {e}')
         raise RuntimeError(e)
     console.log('Extracting metadata for all tilt series.')
-    tilt_series_directory, external_directory, alignments_directory = \
-        create_alignment_job_directory_structure(output_directory)
-    tilt_series_metadata = utils.star.iterate_tilt_series_metadata(
+    tilt_series_metadata = list(utils.star.iterate_tilt_series_metadata(
         tilt_series_star_file=tilt_series_star_file,
         tilt_series_id=tomogram_name
-    )
+    ))
+    console.log(tilt_series_metadata)
     for tilt_series_id, tilt_series_df, tilt_image_df in tilt_series_metadata:
         console.log(f'Aligning {tilt_series_id}...')
         align_single_tilt_series(

@@ -40,7 +40,7 @@ def align_single_tilt_series(
     console = Console(record=True)
 
     # Create output directory structure
-    tilt_series_directory, external_directory, alignments_directory = \
+    stack_directory, external_directory, metadata_directory = \
         create_alignment_job_directory_structure(job_directory)
     aretomo_directory = external_directory / tilt_series_id
     aretomo_directory.mkdir(parents=True, exist_ok=True)
@@ -55,14 +55,13 @@ def align_single_tilt_series(
     # Create tilt-series stack and align using IMOD
     # implicit assumption - one tilt-axis angle per tilt-series
     console.log('Creating tilt series stack')
-    image_file_path = tilt_series_directory / tilt_series_filename
     utils.image.stack_image_files(
         image_files=tilt_image_df['rlnMicrographName'],
-        output_image_file=image_file_path
+        output_image_file=stack_directory / tilt_series_filename
     )
     console.log('Running AreTomo')
     run_aretomo_alignment(
-        tilt_series_file=image_file_path,
+        tilt_series_file=stack_directory / tilt_series_filename,
         tilt_angles=tilt_image_df['rlnTomoNominalStageTiltAngle'],
         pixel_size=tilt_series_df['rlnMicrographOriginalPixelSize'],
         nominal_rotation_angle=tilt_image_df['rlnTomoNominalTiltAxisAngle'][0],
@@ -79,5 +78,5 @@ def align_single_tilt_series(
         tilt_series_id=tilt_series_id,
         pixel_size=tilt_series_df['rlnMicrographOriginalPixelSize'],
         alignment_directory=aretomo_directory,
-        output_star_file=alignments_directory / tilt_image_metadata_filename,
+        output_star_file=metadata_directory / tilt_image_metadata_filename,
     )

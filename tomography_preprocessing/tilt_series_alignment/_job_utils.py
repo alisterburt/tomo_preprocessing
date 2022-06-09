@@ -14,15 +14,15 @@ from ._cli import cli
 
 def create_alignment_job_directory_structure(output_directory: Path) -> Tuple[Path, Path, Path]:
     """Create directory structure for a tilt-series alignment job."""
-    tilt_series_directory = output_directory / 'tilt_series'
-    tilt_series_directory.mkdir(parents=True, exist_ok=True)
+    stacks_directory = output_directory / 'stacks'
+    stacks_directory.mkdir(parents=True, exist_ok=True)
 
     external_directory = output_directory / 'external'
     external_directory.mkdir(parents=True, exist_ok=True)
 
-    alignments_directory = output_directory / 'alignments'
-    alignments_directory.mkdir(parents=True, exist_ok=True)
-    return tilt_series_directory, external_directory, alignments_directory
+    metadata_directory = output_directory / 'tilt_series'
+    metadata_directory.mkdir(parents=True, exist_ok=True)
+    return stacks_directory, external_directory, metadata_directory
 
 
 def tilt_series_alignment_parameters_to_relion_projection_matrices(
@@ -101,13 +101,13 @@ def write_aligned_tilt_series_star_file(
         job_directory / 'alignments' / f'{tilt_series_id}.star'
         for tilt_series_id in df['rlnTomoName']
     ]
-    df['EtomoDirectiveFile'] = [
+    df['rlnEtomoDirectiveFile'] = [
         job_directory / 'external' / tilt_series_id / f'{tilt_series_id}.edf'
         for tilt_series_id in df['rlnTomoName']
     ]
-    etomo_directives_exist = any(df['EtomoDirectiveFile'].apply(lambda x: Path(x).exists()))
+    etomo_directives_exist = any(df['rlnEtomoDirectiveFile'].apply(lambda x: Path(x).exists()))
     if etomo_directives_exist is False:
-        df = df.drop(columns=['EtomoDirectiveFile'])
+        df = df.drop(columns=['rlnEtomoDirectiveFile'])
 
     # check which output files were succesfully generated, take only those
     df = df[df['rlnTomoTiltSeriesStarFile'].apply(lambda x: x.exists())]
