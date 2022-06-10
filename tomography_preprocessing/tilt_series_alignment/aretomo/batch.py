@@ -47,7 +47,7 @@ def batch_aretomo(
         e = 'Could not find tilt series star file'
         console.log(f'ERROR: {e}')
         raise RuntimeError(e)
-    console.log('Extracting metadata for all tilt series.')
+    console.log('Extracting metadata for tilt series.')
     tilt_series_metadata = list(utils.star.iterate_tilt_series_metadata(
         tilt_series_star_file=tilt_series_star_file,
         tilt_series_id=tomogram_name
