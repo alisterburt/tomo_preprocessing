@@ -98,7 +98,7 @@ def write_aligned_tilt_series_star_file(
 
     # update individual tilt series star files
     df['rlnTomoTiltSeriesStarFile'] = [
-        job_directory / 'alignments' / f'{tilt_series_id}.star'
+        job_directory / 'tilt_series' / f'{tilt_series_id}.star'
         for tilt_series_id in df['rlnTomoName']
     ]
     df['rlnEtomoDirectiveFile'] = [
