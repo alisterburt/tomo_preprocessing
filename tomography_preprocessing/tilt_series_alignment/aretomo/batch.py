@@ -4,10 +4,9 @@ from typing import Optional, Tuple
 import typer
 from rich.console import Console
 
-from ._utils import write_aligned_tilt_series_star_file
 from .align_tilt_series import align_single_tilt_series
 from .._cli import cli
-from .._job_utils import create_alignment_job_directory_structure
+from .._job_utils import create_alignment_job_directory_structure, write_aligned_tilt_series_star_file
 from ... import utils
 from ...utils.relion import relion_pipeline_job
 
@@ -69,7 +68,7 @@ def batch_aretomo(
         console.log('Writing aligned_tilt_series.star')
         write_aligned_tilt_series_star_file(
             original_tilt_series_star_file=tilt_series_star_file,
-            output_directory=output_directory
+            job_directory=output_directory
         )
     console.save_html(str(output_directory / 'log.html'), clear=False)
     console.save_text(str(output_directory / 'log.txt'), clear=False)

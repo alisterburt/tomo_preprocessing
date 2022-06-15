@@ -58,7 +58,7 @@ def batch_patch_tracking(
         console.log('Writing aligned_tilt_series.star')
         write_aligned_tilt_series_star_file(
             original_tilt_series_star_file=tilt_series_star_file,
-            output_directory=output_directory
+            job_directory=output_directory
         )
     console.save_html(str(output_directory / 'log.html'), clear=False)
     console.save_text(str(output_directory / 'log.txt'), clear=False)
