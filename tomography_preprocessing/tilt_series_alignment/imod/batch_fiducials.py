@@ -13,6 +13,7 @@ from ...utils.relion import relion_pipeline_job
 
 console = Console(record=True)
 
+
 @cli.command(name='IMOD:fiducials')
 @relion_pipeline_job
 def batch_fiducials(
@@ -33,7 +34,7 @@ def batch_fiducials(
     if not tilt_series_star_file.exists():
         e = 'Could not find tilt series star file'
         console.log(f'ERROR: {e}')
-        raise RuntimeError(e)    
+        raise RuntimeError(e)
     console.log('Extracting metadata for all tilt series.')
     tilt_series_metadata = utils.star.iterate_tilt_series_metadata(
         tilt_series_star_file=tilt_series_star_file,

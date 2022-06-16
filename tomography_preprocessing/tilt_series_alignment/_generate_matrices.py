@@ -35,8 +35,7 @@ def generate_relion_matrices(
     for tilt_series_id, tilt_series_df, tilt_image_df in tilt_series_metadata:
         euler_angles = tilt_image_df[['rlnTomoXTilt', 'rlnTomoYTilt', 'rlnTomoZRot']]
         shifts = tilt_image_df[['rlnTomoXShiftAngst', 'rlnTomoYShiftAngst']]
-        shifts /= tilt_series_df['rlnMicrographPixelSize'] if 'rlnMicrographPixelSize' in tilt_series_df.index \
-            else tilt_series_df['rlnMicrographOriginalPixelSize']
+        shifts /= tilt_series_df['rlnTomoTiltSeriesPixelSize']
         matrices = tilt_series_alignment_parameters_to_relion_projection_matrices(
             specimen_shifts=shifts,
             euler_angles=euler_angles,
