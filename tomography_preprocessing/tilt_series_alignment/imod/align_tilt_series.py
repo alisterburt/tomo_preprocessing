@@ -56,7 +56,7 @@ def align_single_tilt_series(
     alignment_function(
         tilt_series_file=stack_directory / tilt_series_filename,
         tilt_angles=tilt_image_df['rlnTomoNominalStageTiltAngle'],
-        pixel_size=tilt_series_df['rlnMicrographPixelSize'] if 'rlnMicrographPixelSize' in tilt_series_df.index \
+        pixel_size=tilt_series_df['rlnTomoTiltSeriesPixelSize'] if 'rlnTomoTiltSeriesPixelSize' in tilt_series_df.index \
             else tilt_series_df['rlnMicrographOriginalPixelSize'],
         nominal_rotation_angle=tilt_image_df['rlnTomoNominalTiltAxisAngle'][0],
         output_directory=imod_directory,
@@ -68,7 +68,7 @@ def align_single_tilt_series(
         write_single_tilt_series_alignment_output(
             tilt_image_df=tilt_image_df,
             tilt_series_id=tilt_series_id,
-            pixel_size=tilt_series_df['rlnMicrographPixelSize'] if 'rlnMicrographPixelSize' in tilt_series_df.index \
+            pixel_size=tilt_series_df['rlnTomoTiltSeriesPixelSize'] if 'rlnTomoTiltSeriesPixelSize' in tilt_series_df.index \
                 else tilt_series_df['rlnMicrographOriginalPixelSize'],
             alignment_directory=imod_directory,
             output_star_file=metadata_directory / tilt_image_metadata_filename,
