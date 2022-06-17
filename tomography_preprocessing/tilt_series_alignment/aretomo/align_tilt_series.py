@@ -21,6 +21,7 @@ def align_single_tilt_series(
         n_patches_xy: Tuple[int, int],
         alignment_thickness_px: float,
         tilt_angle_offset_correction: bool,
+        gpu_id: str or None,
         job_directory: Path,
 ):
     """Align a single tilt-series in AreTomo using RELION tilt-series metadata.
@@ -35,6 +36,7 @@ def align_single_tilt_series(
     n_patches_xy: number of patches in x and y for local alignments
     alignment_thickness_px: thickness of intermediate reconstruction during alignments.
     tilt_angle_offset_correction: flag to enable/disable stage tilt offset correction (-TiltCor) in AreTomo
+    gpu_id: string to specify GPUs to use. Seperate via a space between each ID, e.g. 0 1 2 3
     job_directory: directory in which results will be stored.
     """
     console = Console(record=True)
@@ -71,6 +73,7 @@ def align_single_tilt_series(
         n_patches_xy=n_patches_xy,
         correct_tilt_angle_offset=tilt_angle_offset_correction,
         thickness_for_alignment=alignment_thickness_px,
+        gpu_id=gpu_id
     )
     console.log('Writing STAR file for aligned tilt-series')
     write_single_tilt_series_alignment_output(
