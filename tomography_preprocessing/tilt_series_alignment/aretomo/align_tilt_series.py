@@ -36,7 +36,7 @@ def align_single_tilt_series(
     n_patches_xy: number of patches in x and y for local alignments
     alignment_thickness_px: thickness of intermediate reconstruction during alignments.
     tilt_angle_offset_correction: flag to enable/disable stage tilt offset correction (-TiltCor) in AreTomo
-    gpu_id: string to specify GPUs to use. Seperate via a space between each ID, e.g. 0 1 2 3
+    gpu_id: string to specify GPUs to use. Seperate via a colon between each ID, e.g. 0:1:2:3
     job_directory: directory in which results will be stored.
     """
     console = Console(record=True)
@@ -57,10 +57,10 @@ def align_single_tilt_series(
     # Create tilt-series stack and align using IMOD
     # implicit assumption - one tilt-axis angle per tilt-series
     console.log('Creating tilt series stack')
-    utils.image.stack_image_files(
-        image_files=tilt_image_df['rlnMicrographName'],
-        output_image_file=stack_directory / tilt_series_filename
-    )
+    #utils.image.stack_image_files(
+    #    image_files=tilt_image_df['rlnMicrographName'],
+    #    output_image_file=stack_directory / tilt_series_filename
+    #)
     console.log('Running AreTomo')
     run_aretomo_alignment(
         tilt_series_file=stack_directory / tilt_series_filename,

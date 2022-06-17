@@ -38,7 +38,7 @@ def batch_aretomo(
     alignment_thickness: thickness of intermediate reconstructions during alignments in px.
     tomogram_name: 'rlnTomoName' for a specific tilt-series.
     tilt_angle_offset_correction: flag to enable/disable stage tilt offset correction (-TiltCor) in AreTomo
-    gpu_id: If you wish to run in parallel over multiple GPUs, enter GPU IDs with spaces in between. e.g. 0 1 2 3
+    gpu_id: If you wish to run in parallel over multiple GPUs, enter GPU IDs separated by colons. e.g. 0:1:2:3
 
     Returns
     -------
