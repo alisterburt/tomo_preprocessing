@@ -57,10 +57,10 @@ def align_single_tilt_series(
     # Create tilt-series stack and align using IMOD
     # implicit assumption - one tilt-axis angle per tilt-series
     console.log('Creating tilt series stack')
-    #utils.image.stack_image_files(
-    #    image_files=tilt_image_df['rlnMicrographName'],
-    #    output_image_file=stack_directory / tilt_series_filename
-    #)
+    utils.image.stack_image_files(
+        image_files=tilt_image_df['rlnMicrographName'],
+        output_image_file=stack_directory / tilt_series_filename
+    )
     console.log('Running AreTomo')
     run_aretomo_alignment(
         tilt_series_file=stack_directory / tilt_series_filename,
