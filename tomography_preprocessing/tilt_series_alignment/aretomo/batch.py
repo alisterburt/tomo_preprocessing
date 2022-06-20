@@ -24,6 +24,7 @@ def batch_aretomo(
         alignment_thickness: Optional[float] = typer.Option(800),
         tomogram_name: Optional[str] = typer.Option(None),
         tilt_angle_offset_correction: Optional[bool] = typer.Option(False),
+        gpu_ids: Optional[str] = typer.Option(None)
 ):
     """Align one or multiple tilt-series in AreTomo using RELION tilt-series metadata.
 
@@ -37,6 +38,7 @@ def batch_aretomo(
     alignment_thickness: thickness of intermediate reconstructions during alignments in px.
     tomogram_name: 'rlnTomoName' for a specific tilt-series.
     tilt_angle_offset_correction: flag to enable/disable stage tilt offset correction (-TiltCor) in AreTomo
+    gpu_ids: string to specify GPUs. GPU identifiers should be separated by colons e.g. 0:1:2:3
 
     Returns
     -------
@@ -62,6 +64,7 @@ def batch_aretomo(
             n_patches_xy=n_patches_xy,
             alignment_thickness_px=alignment_thickness,
             tilt_angle_offset_correction=tilt_angle_offset_correction,
+            gpu_ids=gpu_ids,
             job_directory=output_directory,
         )
     if tomogram_name is None:  # write out STAR file for set of tilt-series
