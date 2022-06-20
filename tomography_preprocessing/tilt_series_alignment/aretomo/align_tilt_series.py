@@ -64,10 +64,10 @@ def align_single_tilt_series(
         output_image_file=stack_directory / tilt_series_filename
     )
     
-    #Convert GPU ID string to tuple
-    gpu_ids = coerce_gpu_ids(
-        gpu_ids=gpu_ids
-    )
+    if gpu_ids is not None:
+        gpu_ids = coerce_gpu_ids(
+            gpu_ids=gpu_ids
+        )
     
     console.log('Running AreTomo')
     run_aretomo_alignment(
