@@ -3,9 +3,9 @@ from pathlib import Path
 import pandas as pd
 from lil_aretomo import run_aretomo_alignment
 from rich.console import Console
-from typing import Tuple
+from typing import Optional, Tuple
 
-from ._utils import gpu_ids_string2tuple
+from ._utils import coerce_gpu_ids
 
 from .._job_utils import (
     create_alignment_job_directory_structure,
@@ -23,7 +23,7 @@ def align_single_tilt_series(
         n_patches_xy: Tuple[int, int],
         alignment_thickness_px: float,
         tilt_angle_offset_correction: bool,
-        gpu_ids: str or None,
+        gpu_ids: Optional[str],
         job_directory: Path,
 ):
     """Align a single tilt-series in AreTomo using RELION tilt-series metadata.
@@ -38,7 +38,7 @@ def align_single_tilt_series(
     n_patches_xy: number of patches in x and y for local alignments
     alignment_thickness_px: thickness of intermediate reconstruction during alignments.
     tilt_angle_offset_correction: flag to enable/disable stage tilt offset correction (-TiltCor) in AreTomo
-    gpu_id: string to specify GPUs. GPU identifiers should be separated by colons e.g. 0:1:2:3
+    gpu_ids: string to specify GPUs. GPU identifiers should be separated by colons e.g. 0:1:2:3
     job_directory: directory in which results will be stored.
     """
     console = Console(record=True)
@@ -65,7 +65,7 @@ def align_single_tilt_series(
     )
     
     #Convert GPU ID string to tuple
-    gpu_ids = gpu_ids_string2tuple(
+    gpu_ids = coerce_gpu_ids(
         gpu_ids=gpu_ids
     )
     
