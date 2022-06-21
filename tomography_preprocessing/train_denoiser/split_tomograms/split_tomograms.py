@@ -7,12 +7,11 @@ import rich
 import typer
 from rich.progress import track
 
-from ._cli import cli
-from .. import utils
-from ..utils.relion import relion_pipeline_job
+from .._cli import cli
+from ... import utils
+from ...utils.relion import relion_pipeline_job
 
 console = rich.console.Console(record=True)
-
 
 @cli.command(name='Split')
 @relion_pipeline_job
@@ -21,7 +20,7 @@ def split_tomograms(
     output_directory: Path = typer.Option(...),
     tomogram_names: str = typer.Option(...),
 ):
-"""Align one or multiple tilt-series in AreTomo using RELION tilt-series metadata.
+    """Align one or multiple tilt-series in AreTomo using RELION tilt-series metadata.
 
     Parameters
     ----------
@@ -34,8 +33,7 @@ series name with
 
     Returns
     -------
-    A split_tilt_series.star file. Use this file to generate tomograms with the RELION generat
-e tomograms function.
+    A split_tilt_series.star file. Use this file to generate tomograms with the RELION generate tomograms function.
     """
 #    if not tilt_series_star_file.exists():
 #        e = 'Could not find tilt series star file'
