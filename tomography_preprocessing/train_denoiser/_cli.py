@@ -1,5 +1,4 @@
 import typer
 
-cli = typer.Typer(name='relion_tomo_train_denoiser')
-
-
+CLI_NAME = 'relion_tomo_train_denoiser'
+cli = typer.Typer(name=CLI_NAME)
