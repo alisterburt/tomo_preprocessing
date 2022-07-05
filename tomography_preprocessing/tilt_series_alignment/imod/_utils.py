@@ -75,15 +75,15 @@ def calculate_specimen_shifts(xf: np.ndarray) -> np.ndarray:
     rotated shift-vector.
 
     In IMOD, the rotation center is at (N - 1) / 2. In RELION, the rotation center
-    is at N / 2. An extra half-pixel shift is added to shifts, accounting for
-    these differences.
+    is at N / 2. An extra half-pixel shift is applied to account for these
+    differences.
     """
     rotation_matrices = get_xf_transformation_matrices(xf)
     inverse_rotation_matrices = rotation_matrices.transpose((0, 2, 1))
 
     image_shifts = xf[:, -2:].reshape((-1, 2, 1))
     specimen_shifts = inverse_rotation_matrices @ -image_shifts
-    return specimen_shifts.reshape((-1, 2)) + 0.5
+    return specimen_shifts.reshape((-1, 2)) - 0.5
 
 
 @lru_cache(maxsize=100)
