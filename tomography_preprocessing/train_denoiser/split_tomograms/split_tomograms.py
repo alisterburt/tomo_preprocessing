@@ -18,7 +18,6 @@ console = rich.console.Console(record=True)
 def split_tomograms(
     tilt_series_star_file: Path = typer.Option(...),
     output_directory: Path = typer.Option(...),
-    tomogram_names: str = typer.Option(...),
 ):
     """Align one or multiple tilt-series in AreTomo using RELION tilt-series metadata.
 
@@ -26,21 +25,47 @@ def split_tomograms(
     ----------
     tilt_series_star_file: RELION tilt-series STAR file.
     output_directory: directory in which results will be stored.
-    tomogram_names: specify which tilt-series you wish to use to train the denoising network.
-        Their names must match 'rlnTomoName' in the tilt_series_star_file. Separate each tilt-
-series name with
-        a comma (e.g. TS_100, TS_200, TS_300). We recommend 3-5 tomograms.
 
     Returns
     -------
-    A split_tilt_series.star file. Use this file to generate tomograms with the RELION generate tomograms function.
+    A tilt-series .star file (denoiser_split.star) to use for generating tomograms with the RELION generate tomograms function
+    prior to denoising with cryoCare/care4relion.
     """
-#    if not tilt_series_star_file.exists():
-#        e = 'Could not find tilt series star file'
-#        console.log(f'ERROR: {e}')
-#        raise RuntimeError(e)
-   
-    console.log('Doing stuff.')
+    if not tilt_series_star_file.exists():
+        e = 'Could not find tilt series star file'
+        console.log(f'ERROR: {e}')
+        raise RuntimeError(e)    
+     
+    #NEW IDEA: duplicate global star with: pd.concat([star['global']]*2, ignore_index=True);
+    # like Write_Aligned_Star loop (see below) through each tomo_name but add _h1 (only loop 1st half)
+    # loop again thru 2nd half with _h2 via df.head([LENGTH OF DF /2]).iterrows()
+    # repeat with TS star location
+        
+    tilt_series_metadata = utils.star.iterate_tilt_series_metadata(
+        tilt_series_star_file=tilt_series_star_file,
+        tilt_series_id=None
+    )
+    
+    for tilt_series_id, _, _ in tilt_series_metadata:
+        
+	split_tilt_series
+                 
 
+    #EXAMPLE BELOW
+   
+    #df = starfile.read(tilt_series_star_file, always_dict=True)['global']
+
+    # update individual tilt series star files
+    #df['rlnTomoTiltSeriesStarFile'] = [
+    #    job_directory / 'tilt_series' / f'{tilt_series_id}.star'
+    #    for tilt_series_id in df['rlnTomoName']
+    #]
+    # check which output files were succesfully generated, take only those
+    #df = df[df['rlnTomoTiltSeriesStarFile'].apply(lambda x: x.exists())]
+    #starfile.write({'global': df}, job_directory / 'aligned_tilt_series.star')        
+        
+    
+    #Write new global star (denoiser_split.star) with all tomograms
+    
     console.save_html(str(output_directory / 'log.html'), clear=False)
     console.save_text(str(output_directory / 'log.txt'), clear=False)

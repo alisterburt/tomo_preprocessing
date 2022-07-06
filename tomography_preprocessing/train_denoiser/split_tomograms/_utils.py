@@ -1,7 +1,7 @@
 # Design:
-# relion_tomo_train_denoise Split --i global.star --tn [names of tomos to train]
-# --o output_dir; then use reconstruct tomograms; relion_tomo_train_denoise CryoCare --i split.star
-# --o output_dir;
+# relion_tomo_train_denoise Split --i global.star  --o output_dir; 
+# then use reconstruct tomograms; 
+# relion_tomo_train_denoise CryoCare --i split.star --tn [names of tomos to train] --o output_dir;
 
 ###########
 
@@ -25,17 +25,17 @@ import typer
     
 #    starfile.write({f'global': star}, output_directory / 'split_tilt_series.star')
     
-#def split_tilt_series_star(
-#    tilt_series_star: Path,
-#    rln_tomo_name: str,
-#    output_directory: Path,
-#): 
-#    star = starfile.read(tilt_series_star)
+def split_tilt_series_star(
+    tilt_series_star: Path,
+    rln_tomo_name: str,
+    output_directory: Path,
+): 
+    star = starfile.read(tilt_series_star)
 
-#    star_h1 = star.iloc[::2,:]
-#    star_h2 = star.iloc[1::2,:]
+    star_h1 = star.iloc[::2,:]
+    star_h2 = star.iloc[1::2,:]
 
-#    starfile.write({f'{rln_tomo_name}_h1': star_h1}, output_directory / 'f{rln_tomo_name}_h1.star')
-#    starfile.write({f'{rln_tomo_name}_h2': star_h2}, output_directory / 'f{rln_tomo_name}_h2.star')
+    starfile.write({f'{rln_tomo_name}_h1': star_h1}, output_directory / 'tilt_series' / 'f{rln_tomo_name}_h1.star')
+    starfile.write({f'{rln_tomo_name}_h2': star_h2}, output_directory / 'tilt_series' / 'f{rln_tomo_name}_h2.star')
     
 
