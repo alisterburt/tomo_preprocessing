@@ -8,21 +8,16 @@ from rich.progress import track
 
 from .._cli import cli
 from ...utils.relion import relion_pipeline_job
-from ._utils import (
-    create_splitting_job_directory_structure,
-    write_split_tilt_series_star,
-    generate_split_global_star,
-)
 
 console = rich.console.Console(record=True)
 
-@cli.command(name='Split')
+@cli.command(name='Care4Relion')
 @relion_pipeline_job
-def split_tilt_series(
+def care4relion(
     tilt_series_star_file: Path = typer.Option(...),
     output_directory: Path = typer.Option(...),
 ):
-    """Splits tilt series into odd and even tilt tilt-series in order to generate half tomogram sets for denoising
+    """CARE
 
     Parameters
     ----------
@@ -31,23 +26,24 @@ def split_tilt_series(
 
     Returns
     -------
-    A tilt-series .star file (split_tilt_series.star) to use for generating tomograms with the RELION generate tomograms function
-    prior to denoising.
+    CARE
     """
     if not tilt_series_star_file.exists():
         e = 'Could not find tilt series star file'
         console.log(f'ERROR: {e}')
         raise RuntimeError(e)    
-  
-    metadata_directory = create_splitting_job_directory_structure(output_directory) 
+      
+    #Detect _rlnTomoDenoisingSplitTomogram Exists, if not, recommend split tomo must be fed to Rec Tomo and use the output of that here
     
-    global_star = starfile.read(tilt_series_star_file, always_dict=True)['global']
+    #Use _rlnTomoDenoisingSplitTomogram to find both halves of tomogram
     
-    write_split_tilt_series_star(global_star, metadata_directory)
+    #Generate json file for train_data_config.json
     
-    global_star = generate_split_global_star(global_star, metadata_directory)
+    #Add other user defined options, and let user define training tomograms and GPU ID
     
-    starfile.write({'global': global_star}, f"{output_directory / 'split_tilt_series.star'}")
+    #Run config.json
+    
+    #Create other json files and run
     
     console.save_html(str(output_directory / 'log.html'), clear=False)
     console.save_text(str(output_directory / 'log.txt'), clear=False)
