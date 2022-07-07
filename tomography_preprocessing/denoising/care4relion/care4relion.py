@@ -4,9 +4,10 @@ import pandas as pd
 import starfile
 import rich
 import typer
-import json
+import subprocess
 from rich.progress import track
 
+from ._utils import *
 from .._cli import cli
 from ...utils.relion import relion_pipeline_job
 
@@ -44,41 +45,59 @@ def care4relion(
         console.log(f'ERROR: {e}')
         raise RuntimeError(e)
     
-    #=====Function 1
-    training_tomograms = training_tomograms.strip().split(':')
-    #=====/Function 1
+    training_dir, tomogram_dir, tilt_series_dir = \
+        create_denoised_tomograms_dir(output_directory)
     
-    #=====Function 2
-    training_tomograms_idx = pd.DataFrame(global_star.rlnTomoName.tolist()).isin(training_tomograms).values
-    if not any(training_tomograms_idx):
-        e = f"Could not user specified training tomograms ({', '.join(str(x) for x in training_tomograms)}) in tilt series star file"
-        console.log(f'ERROR: {e}')
-        raise RuntimeError(e)
-    training_tomograms_star = global_star[training_tomograms_idx]
-    #=====/Function 2
-    
-    #=====Function 3
-    even_tomos = [f'{rows.rlnTomoTomogramHalvesForDenoising}_even.mrc' for idx,rows in training_tomograms_star.iterrows()]
-    odd_tomos = [f'{rows.rlnTomoTomogramHalvesForDenoising}_odd.mrc' for idx,rows in training_tomograms_star.iterrows()]
-    #=====/Function 3
-    
-    #Training_dir
-    training_dir = Path('test') ############
-    
-    #Add other user defined options, and let user define training tomograms and GPU ID
+    training_tomograms = parse_training_tomograms(training_tomograms)
 
-    #=====Function 4
-    train_data_config_json_template = json.loads(f'{{"even": {json.dumps(even_tomos)}, "odd": {json.dumps(odd_tomos)}, "patch_shape": [72, 72, 72], \
-    "num_slices": 250, "split": 0.9, "tilt_axis": "Y", "n_normalization_samples": 50, "path": "{str(training_dir)}"}}')
-    #=====/Function 4
+    training_tomograms_star = generate_training_tomograms_star(
+        global_star=global_star,
+        training_tomograms=training_tomograms,
+    )
     
-    with open(f'{str(training_dir)}/train_data_config.json', 'w') as outfile:
-        json.dump(train_data_config_json_template, outfile, indent=4)   
+    even_tomos, odd_tomos = find_tomogram_halves(training_tomograms_star)
     
     
-    #Run config.json
+
+    ########LATER: Add other user defined options ###########
+
     
-    #Create other json files and run
+
+    train_data_config_json = generate_train_data_config_json(
+        even_tomos=even_tomos,
+        odd_tomos=odd_tomos,
+        training_dir=training_dir,
+    )  
+    
+    train_data_config_prefix = 'train_data_config'
+    
+    save_json(
+        training_dir=training_dir,
+        output_json=train_data_config_json,
+	json_prefix=train_data_config_prefix,
+    )
+
+    subprocess.run(["echo","cryoCARE_extract_train_data.py","--conf",f"{training_dir}/{train_data_config_prefix}.json"])
+        
+    
+    
+    #########LATER:Create other json files and run ############
+    
+    
+    
+    
+    
+    
+    save_tilt_series_stars(
+        global_star=global_star,
+        tilt_series_dir=tilt_series_dir,
+    )
+    
+    save_global_star(
+        global_star=global_star,
+        tomogram_dir=tomogram_dir,
+        output_directory=output_directory,
+    )    
     
     console.save_html(str(output_directory / 'log.html'), clear=False)
     console.save_text(str(output_directory / 'log.txt'), clear=False)
