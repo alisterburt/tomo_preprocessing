@@ -60,26 +60,6 @@ def generate_train_config_json(
     "unet_n_depth": 3, "unet_n_first": 16, "learning_rate": 0.0004, "model_name": "{model_name}", "path": "{training_dir}"}}')
     return train_config_json
 
-
-
-
-
-
-
-#def generate_list_of_tomograms_to_predict(
-#        global_star: pd.DataFrame
-#) -> List:
-#    tomograms_to_predict = [f'{rows.rlnTomoName}' for idx,rows in global_star.iterrows()]
-#    return tomograms_to_predict
-
-
-
-
-
-
-
-
-
 def generate_predict_json(
         even_tomos: List,
         odd_tomos: List,

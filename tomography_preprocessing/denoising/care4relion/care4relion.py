@@ -100,17 +100,6 @@ def care4relion(
     #subprocess.run(cmd, shell=True)
     subprocess.run(['echo','cryoCARE_train.py','--conf',f'{training_dir}/{train_config_prefix}.json']) ###
     
-    
-    
-    
-    
-    
-    ####tomograms_to_predict = generate_list_of_tomograms_to_predict(global_star)
-    
-    
-    
-    
-    
     predict_json = generate_predict_json(
         even_tomos=even_tomos,
         odd_tomos=odd_tomos,
