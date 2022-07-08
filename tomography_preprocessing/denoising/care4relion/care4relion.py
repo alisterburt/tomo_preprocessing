@@ -24,8 +24,7 @@ def care4relion(
     
     Requires that two tomograms have been generated using the same sample. These can be generated via taking odd/even 
     frames during Motion Correction (optimal) or by taking odd/even tilts during tomogram reconstruction.
-    Even and odd tomogram copies should be kept in seperate directories called even and odd. The location of these
-    tomograms should be specified in the global star file for all tilt series with the headers: 
+    The location of these tomograms should be specified in the global star file for all tilt series with the headers: 
     
      
     _rlnTomoTomogramHalvesForDenoisingEven
@@ -131,7 +130,17 @@ def care4relion(
     
     cmd = f"cryoCARE_predict.py --conf {training_dir}/{predict_config_prefix}.json"
     #subprocess.run(cmd, shell=True)
-    subprocess.run(['echo','cryoCARE_predict.py','--conf',f'{training_dir}/{predict_config_prefix}.json']) ###   
+    subprocess.run(['echo','cryoCARE_predict.py','--conf',f'{training_dir}/{predict_config_prefix}.json']) ### 
+    
+    
+    
+    
+    
+    ########LATER: Rename tomograms after prediction ###########  
+    
+    
+    
+    
     
     save_tilt_series_stars(
         global_star=global_star,
