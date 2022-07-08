@@ -39,18 +39,57 @@ def generate_training_tomograms_star(
 def find_tomogram_halves(
         training_tomograms_star: pd.DataFrame,
 ) -> Tuple[List, List]:
-    even_tomos = [f'{rows.rlnTomoTomogramHalvesForDenoising}_even.mrc' for idx,rows in training_tomograms_star.iterrows()]
-    odd_tomos = [f'{rows.rlnTomoTomogramHalvesForDenoising}_odd.mrc' for idx,rows in training_tomograms_star.iterrows()]
+    even_tomos = [f'{rows.rlnTomoTomogramHalvesForDenoisingEven}' for idx,rows in training_tomograms_star.iterrows()]
+    odd_tomos = [f'{rows.rlnTomoTomogramHalvesForDenoisingOdd}' for idx,rows in training_tomograms_star.iterrows()]
     return even_tomos, odd_tomos
 
 def generate_train_data_config_json(
         even_tomos: List,
         odd_tomos: List,
         training_dir: Path,
-    ) -> Dict:
+) -> Dict:
     train_data_config_json = json.loads(f'{{"even": {json.dumps(even_tomos)}, "odd": {json.dumps(odd_tomos)}, "patch_shape": [72, 72, 72], \
     "num_slices": 250, "split": 0.9, "tilt_axis": "Y", "n_normalization_samples": 50, "path": "{training_dir}"}}')
     return train_data_config_json
+
+def generate_train_config_json(
+        training_dir: Path,
+	model_name: str,
+) -> Dict:
+    train_config_json = json.loads(f'{{"train_data": "{training_dir}", "epochs": 100, "steps_per_epoch": 200, "batch_size": 16, "unet_kern_size": 3, \
+    "unet_n_depth": 3, "unet_n_first": 16, "learning_rate": 0.0004, "model_name": "{model_name}", "path": "{training_dir}"}}')
+    return train_config_json
+
+
+
+
+
+
+
+#def generate_list_of_tomograms_to_predict(
+#        global_star: pd.DataFrame
+#) -> List:
+#    tomograms_to_predict = [f'{rows.rlnTomoName}' for idx,rows in global_star.iterrows()]
+#    return tomograms_to_predict
+
+
+
+
+
+
+
+
+
+def generate_predict_json(
+        even_tomos: List,
+        odd_tomos: List,
+	training_dir: Path,
+	model_name: str,
+        output_directory: Path,
+) -> Dict:
+    predict_json = json.loads(f'{{"path": "{training_dir / model_name}.tar.gz", "even": {json.dumps(even_tomos)}, \
+    "odd": {json.dumps(odd_tomos)}, "n_tiles": [1, 1, 1], "output_name": "{output_directory / "tomograms"}"}}')
+    return predict_json
 
 def save_json(
         training_dir: Path,

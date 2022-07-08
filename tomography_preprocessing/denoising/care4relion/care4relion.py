@@ -20,7 +20,7 @@ def care4relion(
     output_directory: Path = typer.Option(...),
     training_tomograms: str = typer.Option(...),
 ):
-    """CARE
+    """CARE TODOTODOTODOTODOTODOTODOTODOTODOTODOTODOTODOTODO
 
     Parameters
     ----------
@@ -31,7 +31,7 @@ def care4relion(
 
     Returns
     -------
-    CARE
+    CARE TODOTODOTODOTODOTODOTODOTODOTODOTODOTODOTODOTODOTODO
     """
     if not tilt_series_star_file.exists():
         e = 'Could not find tilt series star file'
@@ -40,8 +40,8 @@ def care4relion(
       
     global_star = starfile.read(tilt_series_star_file, always_dict=True)['global']
     
-    if not 'rlnTomoTomogramHalvesForDenoising' in global_star.columns:
-        e = 'Could not find rlnTomoTomogramHalvesForDenoising in tilt series star file.'
+    if not 'rlnTomoTomogramHalvesForDenoisingEven' in global_star.columns:
+        e = 'Could not find rlnTomoTomogramHalvesForDenoisingEven in tilt series star file.'
         console.log(f'ERROR: {e}')
         raise RuntimeError(e)
     
@@ -77,16 +77,59 @@ def care4relion(
 	json_prefix=train_data_config_prefix,
     )
 
-    subprocess.run(["echo","cryoCARE_extract_train_data.py","--conf",f"{training_dir}/{train_data_config_prefix}.json"])
+    cmd = f"cryoCARE_extract_train_data.py --conf {training_dir}/{train_data_config_prefix}.json"
+    #subprocess.run(cmd, shell=True)
+    subprocess.run(['echo','cryoCARE_extract_train_data.py','--conf',f'{training_dir}/{train_data_config_prefix}.json']) ###
+    
+    model_name = 'denoising_model'  
         
+    train_config_json = generate_train_config_json(
+        training_dir=training_dir,
+	model_name=model_name,
+    )    
+    
+    train_config_prefix = 'train_config'
+    
+    save_json(
+        training_dir=training_dir,
+        output_json=train_config_json,
+	json_prefix=train_config_prefix,
+    )
+    
+    cmd = f"cryoCARE_train.py --conf {training_dir}/{train_config_prefix}.json"
+    #subprocess.run(cmd, shell=True)
+    subprocess.run(['echo','cryoCARE_train.py','--conf',f'{training_dir}/{train_config_prefix}.json']) ###
     
     
-    #########LATER:Create other json files and run ############
+    
+    
+    
+    
+    ####tomograms_to_predict = generate_list_of_tomograms_to_predict(global_star)
     
     
     
     
     
+    predict_json = generate_predict_json(
+        even_tomos=even_tomos,
+        odd_tomos=odd_tomos,
+	training_dir=training_dir,
+	model_name=model_name,
+        output_directory=output_directory,
+    )
+
+    predict_config_prefix = 'predict_config'
+    
+    save_json(
+        training_dir=training_dir,
+        output_json=predict_json,
+	json_prefix=predict_config_prefix,
+    )
+    
+    cmd = f"cryoCARE_predict.py --conf {training_dir}/{predict_config_prefix}.json"
+    #subprocess.run(cmd, shell=True)
+    subprocess.run(['echo','cryoCARE_predict.py','--conf',f'{training_dir}/{predict_config_prefix}.json']) ###   
     
     save_tilt_series_stars(
         global_star=global_star,
