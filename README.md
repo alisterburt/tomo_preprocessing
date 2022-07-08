@@ -25,6 +25,7 @@ pip install -e .
 | Tilt-series alignment  | `relion_tomo_align_tilt_series IMOD:fiducials`  |
 | Tilt-series alignment  | `relion_tomo_align_tilt_series IMOD:patch-tracking`  |
 | Tilt-series alignment   | `relion_tomo_align_tilt_series AreTomo`  |
+| Denoising (cryoCARE)   | `relion_tomo_denoise`  |
 
 A helptext can be found for each program with
 
