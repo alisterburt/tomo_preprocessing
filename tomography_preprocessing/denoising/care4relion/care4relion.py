@@ -20,18 +20,31 @@ def care4relion(
     output_directory: Path = typer.Option(...),
     training_tomograms: str = typer.Option(...),
 ):
-    """CARE TODOTODOTODOTODOTODOTODOTODOTODOTODOTODOTODOTODO
+    """Denoises tomograms using cryoCARE (Thorsten Wagner version) (https://github.com/thorstenwagner/cryoCARE_mpido)
+    
+    Requires that two tomograms have been generated using the same sample. These can be generated via taking odd/even 
+    frames during Motion Correction (optimal) or by taking odd/even tilts during tomogram reconstruction.
+    Even and odd tomogram copies should be kept in seperate directories called even and odd. The location of these
+    tomograms should be specified in the global star file for all tilt series with the headers: 
+    
+     
+    _rlnTomoTomogramHalvesForDenoisingEven
+    
+      _rlnTomoTomogramHalvesForDenoisingOdd
 
     Parameters
     ----------
+    
     tilt_series_star_file: RELION tilt-series STAR file.
+    
     output_directory: directory in which results will be stored.
+    
     training_tomograms: tomograms which are to be used for denoising neural network training.
         User should enter tomogram names as rlnTomoName, separated by colons, e.g. TS_1:TS_2
 
     Returns
     -------
-    CARE TODOTODOTODOTODOTODOTODOTODOTODOTODOTODOTODOTODOTODO
+    Denoised tomograms.
     """
     if not tilt_series_star_file.exists():
         e = 'Could not find tilt series star file'
