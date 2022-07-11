@@ -64,10 +64,11 @@ def generate_predict_json(
         even_tomos: List,
         odd_tomos: List,
 	training_dir: Path,
-	model_name: str,
+	model_name: str or Path,
         output_directory: Path,
 ) -> Dict:
-    predict_json = json.loads(f'{{"path": "{training_dir / model_name}.tar.gz", "even": {json.dumps(even_tomos)}, \
+    if type(model_name) is str: model_name = f"{training_dir / model_name}.tar.gz" 
+    predict_json = json.loads(f'{{"path": "{model_name}", "even": {json.dumps(even_tomos)}, \
     "odd": {json.dumps(odd_tomos)}, "n_tiles": [4, 4, 2], "output": "{output_directory / "tomograms"}"}}')
     return predict_json
 
@@ -98,7 +99,8 @@ def save_global_star(
 def rename_predicted_tomograms(
     even_tomos: List,
     tomogram_dir: Path,
+    even_suffix: str,
 ):
     even_tomos = [Path(tomo) for tomo in even_tomos]
     even_tomos = [Path(f"{tomogram_dir}/{tomo.name}") for tomo in even_tomos]
-    [tomo.rename(Path(f"{tomogram_dir}/{tomo.stem.replace('_even','')}{tomo.suffix}")) for tomo in even_tomos]
+    [tomo.rename(Path(f"{tomogram_dir}/{tomo.stem.replace(even_suffix,'')}{tomo.suffix}")) for tomo in even_tomos]
