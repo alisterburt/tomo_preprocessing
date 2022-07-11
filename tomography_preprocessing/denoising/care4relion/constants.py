@@ -1,4 +1,4 @@
-even_suffix = '_h1' #The suffix given to even tomograms during split tomogram generation. This will be removed from the names of the output tomograms
+even_suffix = '_even' #The suffix given to even tomograms during split tomogram generation. This will be removed from the names of the output tomograms
 
 predict_config_prefix = 'predict_config' #Name (minus the suffix) of the predict_config.json file
 
