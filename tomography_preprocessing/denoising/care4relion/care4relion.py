@@ -10,6 +10,7 @@ from rich.progress import track
 
 from .train_neural_network import train_neural_network
 from ._utils import *
+from .constants import predict_config_prefix, even_suffix 
 from .._cli import cli
 from ...utils.relion import relion_pipeline_job
 
@@ -108,8 +109,6 @@ def care4relion(
 	model_name=model_name,
         output_directory=output_directory,
     )
-
-    predict_config_prefix = 'predict_config'
     
     save_json(
         training_dir=training_dir,
@@ -121,9 +120,7 @@ def care4relion(
     cmd = f"cryoCARE_predict.py --conf {training_dir}/{predict_config_prefix}.json"
     #subprocess.run(cmd, shell=True)
     subprocess.run(['echo','cryoCARE_predict.py','--conf',f'{training_dir}/{predict_config_prefix}.json']) ### 
-    
-    even_suffix = '_h1'
-        
+            
     rename_predicted_tomograms(
     even_tomos=even_tomos,
     tomogram_dir=tomogram_dir,

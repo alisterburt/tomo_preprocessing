@@ -6,7 +6,7 @@
 [![CI](https://github.com/alisterburt/tomography_preprocessing/actions/workflows/ci.yml/badge.svg)](https://github.com/alisterburt/tomography_preprocessing/actions/workflows/ci.yml)
 [![codecov](https://codecov.io/gh/alisterburt/tomography_preprocessing/branch/main/graph/badge.svg)](https://codecov.io/gh/alisterburt/tomography_preprocessing)
 
-A cryo-ET tilt-series data preprocessing workflow for RELION 4.0
+A cryo-ET tilt-series data preprocessing workflow for RELION 4.1
 
 # Installation
 In a virtual environment
