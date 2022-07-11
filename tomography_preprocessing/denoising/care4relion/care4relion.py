@@ -21,7 +21,7 @@ console = rich.console.Console(record=True)
 def care4relion(
     tilt_series_star_file: Path = typer.Option(...),
     output_directory: Path = typer.Option(...),
-    training_tomograms: str = typer.Option(...),
+    training_tomograms: Optional[str] = typer.Option(None),
     model_name: Optional[Path] = typer.Option(None),
 
 ):
@@ -58,6 +58,12 @@ def care4relion(
         e = 'Could not find tilt series star file'
         console.log(f'ERROR: {e}')
         raise RuntimeError(e)    
+    
+    if model_name is None and training_tomograms is None:
+        e = 'Both model name and training tomograms are empty. Either provide a trained network through model name or specify \
+            which tomograms to train on (using rlnTomoName of the tilt series, separated by colons) in training tomograms'
+        console.log(f'ERROR: {e}')
+        raise RuntimeError(e)
       
     global_star = starfile.read(tilt_series_star_file, always_dict=True)['global']
     
@@ -118,8 +124,8 @@ def care4relion(
 
     console.log('Generating denoised tomograms')
     cmd = f"cryoCARE_predict.py --conf {training_dir}/{predict_config_prefix}.json"
-    #subprocess.run(cmd, shell=True)
-    subprocess.run(['echo','cryoCARE_predict.py','--conf',f'{training_dir}/{predict_config_prefix}.json']) ### 
+    subprocess.run(cmd, shell=True)
+    #subprocess.run(['echo','cryoCARE_predict.py','--conf',f'{training_dir}/{predict_config_prefix}.json']) ### 
             
     rename_predicted_tomograms(
     even_tomos=even_tomos,
