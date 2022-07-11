@@ -66,10 +66,11 @@ def generate_predict_json(
 	training_dir: Path,
 	model_name: str or Path,
         output_directory: Path,
+        n_tiles: Tuple[int,int,int],
 ) -> Dict:
     if type(model_name) is str: model_name = f"{training_dir / model_name}.tar.gz" 
     predict_json = json.loads(f'{{"path": "{model_name}", "even": {json.dumps(even_tomos)}, \
-    "odd": {json.dumps(odd_tomos)}, "n_tiles": [4, 4, 2], "output": "{output_directory / "tomograms"}"}}')
+    "odd": {json.dumps(odd_tomos)}, "n_tiles": {list(n_tiles)}, "output": "{output_directory / "tomograms"}"}}')
     return predict_json
 
 def save_json(

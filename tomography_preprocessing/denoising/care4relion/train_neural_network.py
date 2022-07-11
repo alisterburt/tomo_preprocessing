@@ -34,7 +34,6 @@ def train_neural_network(
 
     cmd = f"cryoCARE_extract_train_data.py --conf {training_dir}/{train_data_config_prefix}.json"
     subprocess.run(cmd, shell=True)
-    #subprocess.run(['echo','cryoCARE_extract_train_data.py','--conf',f'{training_dir}/{train_data_config_prefix}.json']) ###
             
     train_config_json = generate_train_config_json(
         training_dir=training_dir,
@@ -49,6 +48,5 @@ def train_neural_network(
     
     cmd = f"cryoCARE_train.py --conf {training_dir}/{train_config_prefix}.json"
     subprocess.run(cmd, shell=True)
-    #subprocess.run(['echo','cryoCARE_train.py','--conf',f'{training_dir}/{train_config_prefix}.json']) ###
     
     return model_name

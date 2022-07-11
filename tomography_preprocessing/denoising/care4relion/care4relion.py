@@ -23,6 +23,7 @@ def care4relion(
     output_directory: Path = typer.Option(...),
     training_tomograms: Optional[str] = typer.Option(None),
     model_name: Optional[Path] = typer.Option(None),
+    n_tiles: Optional[Tuple[int,int,int]] = typer.Option((1,1,1))
 
 ):
     """Denoises tomograms using cryoCARE (Thorsten Wagner version) (https://github.com/thorstenwagner/cryoCARE_mpido)
@@ -49,6 +50,12 @@ def care4relion(
     model_name (optional): if you have already trained a denoising neural network and want to skip the training step,
         user can provide the path to the model.tar.gz produced by a previous cryoCARE denoising job. This will skip
         straight to tomogram generation.
+	
+    n-tiles (optional): Initial tiles per dimension during prediction step. Should get increased \ 
+        if the tiles do not fit on the GPU. However, sometimes this parameter is a source of errors causing out of memory \
+        problems and tomogram dimensions to be wrong. We have found other useful values for this include 4,4,2 and 2,4,4 \
+        (default = 1,1,1). Enter as: `--n-tiles 4 4 2`
+        
 
     Returns
     -------
@@ -84,14 +91,6 @@ def care4relion(
     
     even_tomos, odd_tomos = find_tomogram_halves(training_tomograms_star)
     
-    
-
-
-    ########LATER: Add other user defined options ###########
-    
-    
-    
-    
     if model_name is None:
         console.log('User has not provided path to a previously trained neural network, beginning to train now...')
         model_name = train_neural_network(
@@ -114,6 +113,7 @@ def care4relion(
 	training_dir=training_dir,
 	model_name=model_name,
         output_directory=output_directory,
+        n_tiles=n_tiles,
     )
     
     save_json(
@@ -125,7 +125,6 @@ def care4relion(
     console.log('Generating denoised tomograms')
     cmd = f"cryoCARE_predict.py --conf {training_dir}/{predict_config_prefix}.json"
     subprocess.run(cmd, shell=True)
-    #subprocess.run(['echo','cryoCARE_predict.py','--conf',f'{training_dir}/{predict_config_prefix}.json']) ### 
             
     rename_predicted_tomograms(
     even_tomos=even_tomos,
