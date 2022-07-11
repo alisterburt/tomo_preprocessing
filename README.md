@@ -27,6 +27,8 @@ pip install -e .
 | Tilt-series alignment   | `relion_tomo_align_tilt_series AreTomo`  |
 | Denoising (cryoCARE)   | `relion_tomo_denoise`  |
 
+For CryoCARE denoising, please install this version: https://github.com/EuanPyle/cryoCARE_mpido
+
 A helptext can be found for each program with
 
 ```shell
