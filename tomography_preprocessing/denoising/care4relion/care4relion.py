@@ -127,20 +127,15 @@ def care4relion(
         output_json=predict_json,
 	json_prefix=predict_config_prefix,
     )
-    
+
     cmd = f"cryoCARE_predict.py --conf {training_dir}/{predict_config_prefix}.json"
     #subprocess.run(cmd, shell=True)
     subprocess.run(['echo','cryoCARE_predict.py','--conf',f'{training_dir}/{predict_config_prefix}.json']) ### 
     
-    
-    
-    
-    
-    ########LATER: Rename tomograms after prediction ###########  
-    
-    
-    
-    
+    rename_predicted_tomograms(
+    even_tomos=even_tomos,
+    tomogram_dir=tomogram_dir,
+    )
     
     save_tilt_series_stars(
         global_star=global_star,

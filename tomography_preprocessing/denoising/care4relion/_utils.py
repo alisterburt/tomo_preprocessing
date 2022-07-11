@@ -68,7 +68,7 @@ def generate_predict_json(
         output_directory: Path,
 ) -> Dict:
     predict_json = json.loads(f'{{"path": "{training_dir / model_name}.tar.gz", "even": {json.dumps(even_tomos)}, \
-    "odd": {json.dumps(odd_tomos)}, "n_tiles": [1, 1, 1], "output_name": "{output_directory / "tomograms"}"}}')
+    "odd": {json.dumps(odd_tomos)}, "n_tiles": [4, 4, 2], "output": "{output_directory / "tomograms"}"}}')
     return predict_json
 
 def save_json(
@@ -95,3 +95,10 @@ def save_global_star(
     global_star['rlnTomoDenoisedTomogram'] = global_star.apply(lambda x: f'{tomogram_dir}/rec_{x["rlnTomoName"]}.mrc', axis=1)
     starfile.write({'global': global_star}, f'{output_directory}/tomograms.star')
     
+def rename_predicted_tomograms(
+    even_tomos: List,
+    tomogram_dir: Path,
+):
+    even_tomos = [Path(tomo) for tomo in even_tomos]
+    even_tomos = [Path(f"{tomogram_dir}/{tomo.name}") for tomo in even_tomos]
+    [tomo.rename(Path(f"{tomogram_dir}/{tomo.stem.replace('_even','')}{tomo.suffix}")) for tomo in even_tomos]
