@@ -38,15 +38,12 @@ def align_single_tilt_series(
         create_alignment_job_directory_structure(output_directory)
     imod_directory = external_directory / tilt_series_id
     imod_directory.mkdir(parents=True, exist_ok=True)
-
-    # Establish filenames
-    tilt_series_filename = f'{tilt_series_id}.mrc'
     tilt_image_metadata_filename = f'{tilt_series_id}.star'
 
     # Order is important in IMOD, sort by tilt angle
     tilt_image_df = tilt_image_df.sort_values(by='rlnTomoNominalStageTiltAngle', ascending=True)
 
-    # Create tilt-series stack and align using IMOD
+    # Align tilt-series using IMOD
     # implicit assumption - one tilt-axis angle per tilt-series
     console.log('Running IMOD alignment')
     imod_output = alignment_function(
@@ -58,8 +55,8 @@ def align_single_tilt_series(
         output_directory=imod_directory,
         **alignment_function_kwargs,
     )
-    console.log('Writing STAR file for aligned tilt-series')
     if imod_output.contains_alignment_results:
+        console.log('Writing STAR file for aligned tilt-series')
         write_single_tilt_series_alignment_output(
             tilt_image_df=tilt_image_df,
             tilt_series_id=tilt_series_id,
