@@ -1,8 +1,8 @@
 from pathlib import Path
-from typing import Tuple, Optional
+from typing import Optional
 
 import typer
-from yet_another_imod_wrapper import run_patch_tracking_based_alignment
+from yet_another_imod_wrapper import align_tilt_series_using_patch_tracking
 from rich.console import Console
 
 from .align_tilt_series import align_single_tilt_series
@@ -13,13 +13,14 @@ from ...utils.relion import relion_pipeline_job
 
 console = Console(record=True)
 
+
 @cli.command(name='IMOD:patch-tracking')
 @relion_pipeline_job
 def batch_patch_tracking(
         tilt_series_star_file: Path = typer.Option(...),
         output_directory: Path = typer.Option(...),
         tomogram_name: Optional[str] = typer.Option(None),
-        unbinned_patch_size_pixels: Tuple[int, int] = typer.Option(...),
+        patch_size_angstroms: float = typer.Option(...),
         patch_overlap_percentage: float = typer.Option(...),
 ):
     """Align one or multiple tilt-series with patch-tracking in IMOD.
@@ -29,7 +30,7 @@ def batch_patch_tracking(
     tilt_series_star_file: RELION tilt-series STAR file.
     output_directory: directory in which to store results.
     tomogram_name: 'rlnTomoName' in tilt-series STAR file.
-    unbinned_patch_size_pixels: size of 2D patches used for alignment.
+    patch_size_angstroms: size of 2D patches used for alignment.
     patch_overlap_percentage: percentage of overlap between tracked patches.
     """
     if not tilt_series_star_file.exists():
@@ -47,9 +48,9 @@ def batch_patch_tracking(
             tilt_series_id=tilt_series_id,
             tilt_series_df=tilt_series_df,
             tilt_image_df=tilt_image_df,
-            alignment_function=run_patch_tracking_based_alignment,
+            alignment_function=align_tilt_series_using_patch_tracking,
             alignment_function_kwargs={
-                'patch_size_xy': unbinned_patch_size_pixels,
+                'patch_size': patch_size_angstroms,
                 'patch_overlap_percentage': patch_overlap_percentage,
             },
             output_directory=output_directory,
