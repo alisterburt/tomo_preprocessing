@@ -2,7 +2,7 @@ from pathlib import Path
 from typing import Optional
 
 import typer
-from yet_another_imod_wrapper import run_fiducial_based_alignment
+from yet_another_imod_wrapper import align_tilt_series_using_fiducials
 from rich.console import Console
 
 from .._job_utils import write_aligned_tilt_series_star_file
@@ -46,7 +46,7 @@ def batch_fiducials(
             tilt_series_id=tilt_series_id,
             tilt_series_df=tilt_series_df,
             tilt_image_df=tilt_image_df,
-            alignment_function=run_fiducial_based_alignment,
+            alignment_function=align_tilt_series_using_fiducials,
             alignment_function_kwargs={
                 'fiducial_size': nominal_fiducial_diameter_nanometres
             },
