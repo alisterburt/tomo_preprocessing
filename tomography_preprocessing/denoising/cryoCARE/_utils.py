@@ -65,27 +65,27 @@ def generate_train_data_config_json(
 
 def generate_train_config_json(
         training_dir: Path,
+        output_directory: Path,
 	model_name: str,
 ) -> Dict:
     """
     Creates a Dict which can be saved as a json file for train_config.json file
     """
     train_config_json = json.loads(f'{{"train_data": "{training_dir}", "epochs": 100, "steps_per_epoch": 200, "batch_size": 16, "unet_kern_size": 3, \
-    "unet_n_depth": 3, "unet_n_first": 16, "learning_rate": 0.0004, "model_name": "{model_name}", "path": "{training_dir}"}}')
+    "unet_n_depth": 3, "unet_n_first": 16, "learning_rate": 0.0004, "model_name": "{model_name}", "path": "{output_directory}"}}')
     return train_config_json
 
 def generate_predict_json(
         even_tomos: List,
         odd_tomos: List,
 	training_dir: Path,
-	model_name: str or Path,
+	model_name: Path,
         output_directory: Path,
         n_tiles: Tuple[int,int,int],
 ) -> Dict:
     """
     Creates a Dict which can be saved as a json file for predict_config.json file
     """
-    if type(model_name) is str: model_name = f"{training_dir / model_name}.tar.gz" 
     predict_json = json.loads(f'{{"path": "{model_name}", "even": {json.dumps(even_tomos)}, \
     "odd": {json.dumps(odd_tomos)}, "n_tiles": {list(n_tiles)}, "output": "{output_directory / "tomograms"}"}}')
     return predict_json
@@ -111,16 +111,25 @@ def save_tilt_series_stars(
     for idx,row in global_star.iterrows():
         shutil.copyfile(f"{row['rlnTomoTiltSeriesStarFile']}", f'{tilt_series_dir}/{row["rlnTomoName"]}.star')
     global_star['rlnTomoTiltSeriesStarFile'] = global_star.apply(lambda x: f'{tilt_series_dir}/{x["rlnTomoName"]}.star', axis=1)
-
-def save_global_star(
+    
+def add_denoised_tomo_to_global_star(
         global_star: pd.DataFrame,
         tomogram_dir: Path,
         output_directory: Path,
 ):
     """
+    Adds location of the denoising tomogram to the global star file.
+    """
+    global_star['rlnTomoReconstructedTomogramDenoised'] = global_star.apply(lambda x: f'{tomogram_dir}/rec_{x["rlnTomoName"]}.mrc', axis=1)
+    return global_star
+    
+def save_global_star(
+        global_star: pd.DataFrame,
+        output_directory: Path,
+):
+    """
     Saves global star file (tomograms.star) in output directory.
     """
-    global_star['rlnTomoDenoisedTomogram'] = global_star.apply(lambda x: f'{tomogram_dir}/rec_{x["rlnTomoName"]}.mrc', axis=1)
     starfile.write({'global': global_star}, f'{output_directory}/tomograms.star')
     
 def rename_predicted_tomograms(
