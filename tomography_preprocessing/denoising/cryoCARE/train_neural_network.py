@@ -1,4 +1,5 @@
 from pathlib import Path
+from typing import List
 
 import pandas as pd
 import starfile
@@ -7,8 +8,12 @@ import typer
 import subprocess
 from rich.progress import track
 
-from ._utils import *
-from .constants import train_data_config_prefix, model_name, train_config_prefix
+from ._utils import (
+    generate_train_data_config_json,
+    save_json,
+    generate_train_config_json,
+)
+from .constants import TRAIN_DATA_CONFIG_PREFIX, MODEL_NAME, TRAIN_CONFIG_PREFIX
 
 console = rich.console.Console(record=True)
 
@@ -29,24 +34,24 @@ def train_neural_network(
     save_json(
         training_dir=training_dir,
         output_json=train_data_config_json,
-	json_prefix=train_data_config_prefix,
+	json_prefix=TRAIN_DATA_CONFIG_PREFIX,
     )
 
-    cmd = f"cryoCARE_extract_train_data.py --conf {training_dir}/{train_data_config_prefix}.json"
+    cmd = f"cryoCARE_extract_train_data.py --conf {training_dir}/{TRAIN_DATA_CONFIG_PREFIX}.json"
     subprocess.run(cmd, shell=True)
             
     train_config_json = generate_train_config_json(
         training_dir=training_dir,
-	model_name=model_name,
+	model_name=MODEL_NAME,
     )    
         
     save_json(
         training_dir=training_dir,
         output_json=train_config_json,
-	json_prefix=train_config_prefix,
+	json_prefix=TRAIN_CONFIG_PREFIX,
     )
     
-    cmd = f"cryoCARE_train.py --conf {training_dir}/{train_config_prefix}.json"
+    cmd = f"cryoCARE_train.py --conf {training_dir}/{TRAIN_CONFIG_PREFIX}.json"
     subprocess.run(cmd, shell=True)
     
-    return model_name
+    return MODEL_NAME
