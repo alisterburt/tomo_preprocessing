@@ -6,7 +6,7 @@
 [![CI](https://github.com/alisterburt/tomography_preprocessing/actions/workflows/ci.yml/badge.svg)](https://github.com/alisterburt/tomography_preprocessing/actions/workflows/ci.yml)
 [![codecov](https://codecov.io/gh/alisterburt/tomography_preprocessing/branch/main/graph/badge.svg)](https://codecov.io/gh/alisterburt/tomography_preprocessing)
 
-A cryo-ET tilt-series data preprocessing workflow for RELION 4.0
+A cryo-ET tilt-series data preprocessing workflow for RELION 4.1
 
 # Installation
 In a virtual environment
@@ -25,6 +25,9 @@ pip install -e .
 | Tilt-series alignment  | `relion_tomo_align_tilt_series IMOD:fiducials`  |
 | Tilt-series alignment  | `relion_tomo_align_tilt_series IMOD:patch-tracking`  |
 | Tilt-series alignment   | `relion_tomo_align_tilt_series AreTomo`  |
+| Denoising (cryoCARE)   | `relion_tomo_denoise`  |
+
+For CryoCARE denoising, please install this version: https://github.com/EuanPyle/cryoCARE_mpido
 
 A helptext can be found for each program with
 
