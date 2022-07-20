@@ -44,7 +44,7 @@ def cryoCARE_predict(
      
     rlnTomoReconstructedTomogramHalf1
     
-      rlnTomoReconstructedTomogramHalf2
+  rlnTomoReconstructedTomogramHalf2
 
     Parameters
     ----------
