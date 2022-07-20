@@ -8,8 +8,13 @@ import json
 import shutil
 
 def create_denoising_directory_structure(
-        output_directory: Path
+        output_directory: Path,
+        training_job: bool,
 ) -> Tuple[Path, Path, Path]:
+    """
+    Creates directory structure for denoising jobs. Doe not create tomogram directory if the job is for training a
+    denoising model as no tomograms are generated in this step.
+    """
     training_dir = output_directory / 'external' / 'training' 
     training_dir.mkdir(parents=True, exist_ok=True)
     tomogram_dir = output_directory / 'tomograms'

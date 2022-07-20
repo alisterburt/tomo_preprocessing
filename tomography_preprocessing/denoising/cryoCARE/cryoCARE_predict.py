@@ -76,8 +76,11 @@ def cryoCARE_predict(
         console.log(f'ERROR: {e}')
         raise RuntimeError(e)
     training_dir, tomogram_dir, tilt_series_dir = \
-        create_denoising_directory_structure(output_directory)
-
+        create_denoising_directory_structure(
+            output_directory=output_directory,
+            training_job=False,
+        )
+    
     even_tomos, odd_tomos = find_tomogram_halves(global_star)
 
     predict_json = generate_predict_json(

@@ -71,7 +71,10 @@ def cryoCARE_train(
         raise RuntimeError(e)
 
     training_dir, tomogram_dir, tilt_series_dir = \
-        create_denoising_directory_structure(output_directory)
+        create_denoising_directory_structure(
+            output_directory=output_directory,
+            training_job=True,
+        )
     
     training_tomograms = parse_training_tomograms(training_tomograms)
 
