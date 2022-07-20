@@ -112,8 +112,10 @@ def cryoCARE_train(
     )
     
     cmd = f"cryoCARE_train.py --conf {training_dir}/{TRAIN_CONFIG_PREFIX}.json"
-    subprocess.run(cmd, shell=True)   
-
+    subprocess.run(cmd, shell=True)  
+    
+    console.log(f'Finished training denoising model.') 
+    
     save_tilt_series_stars(
         global_star=global_star,
         tilt_series_dir=tilt_series_dir,
