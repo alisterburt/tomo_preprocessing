@@ -123,7 +123,6 @@ def cryoCARE_train(
     
     save_global_star(
         global_star=global_star,
-        tomogram_dir=tomogram_dir,
         output_directory=output_directory,
     )    
     
