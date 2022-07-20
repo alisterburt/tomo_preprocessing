@@ -31,6 +31,8 @@ def cryoCARE_train(
     tilt_series_star_file: Path = typer.Option(...),
     output_directory: Path = typer.Option(...),
     training_tomograms: str = typer.Option(None),
+    number_training_subvolumes: Optional[int] = typer.Option(1200),
+    subvolume_dimensions: Optional[int] = typer.Option(72),
 ):
     """Trains a denoising model using cryoCARE (Euan Pyle version, https://github.com/EuanPyle/cryoCARE_mpido)
     branched from Thorsten Wagner version, https://github.com/thorstenwagner/cryoCARE_mpido)
@@ -53,6 +55,13 @@ def cryoCARE_train(
     
     training_tomograms: tomograms which are to be used for denoising neural network training.
         User should enter tomogram names as rlnTomoName, separated by colons, e.g. TS_1:TS_2
+
+    number_training_subvolumes: Number of sub-volumes to be extracted per training tomogram
+    Corresponds to num_slices in cryoCARE_extract_train_data.py. Default is 1200.  
+    Number of normalisation samples will be 10% of this value.
+   
+    subvolume_dimensions: Dimensions (for XYZ, in pixels) of the subvolumes extracted for training
+    Default is 72. This number should not be lower than 64. Corresponds to patch_shape in cryoCARE_extract_train_data.py
         
     Returns
     -------
@@ -91,6 +100,8 @@ def cryoCARE_train(
         even_tomos=even_tomos,
         odd_tomos=odd_tomos,
         training_dir=training_dir,
+        number_training_subvolumes=number_training_subvolumes,
+        subvolume_dimensions=subvolume_dimensions,
     )  
         
     save_json(

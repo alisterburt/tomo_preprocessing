@@ -60,12 +60,15 @@ def generate_train_data_config_json(
         even_tomos: List,
         odd_tomos: List,
         training_dir: Path,
+        number_training_subvolumes: int,
+        subvolume_dimensions: int,
 ) -> Dict:
     """
     Creates a Dict which can be saved as a json file for train_data_config.json file
     """
-    train_data_config_json = json.loads(f'{{"even": {json.dumps(even_tomos)}, "odd": {json.dumps(odd_tomos)}, "patch_shape": [72, 72, 72], \
-    "num_slices": 250, "split": 0.9, "tilt_axis": "Y", "n_normalization_samples": 50, "path": "{training_dir}"}}')
+    number_normalisation_subvolumes = round(number_training_subvolumes * 0.1)
+    train_data_config_json = json.loads(f'{{"even": {json.dumps(even_tomos)}, "odd": {json.dumps(odd_tomos)}, "patch_shape": [{subvolume_dimensions}, {subvolume_dimensions}, {subvolume_dimensions}], \
+    "num_slices": {number_training_subvolumes}, "split": 0.9, "tilt_axis": "Y", "n_normalization_samples": {number_normalisation_subvolumes}, "path": "{training_dir}"}}')
     return train_data_config_json
 
 def generate_train_config_json(
