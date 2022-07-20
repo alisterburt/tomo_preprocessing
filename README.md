@@ -1,6 +1,6 @@
 # tomography_preprocessing
 
-*this repository has been archived as these programs are to be integrated into RELION from version 4.1*
+### **this repository has been archived as these programs are to be integrated into RELION from version 4.1**
 
 # Installation
 In a virtual environment
