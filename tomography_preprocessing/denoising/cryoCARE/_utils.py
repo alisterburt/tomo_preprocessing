@@ -144,11 +144,11 @@ def save_global_star(
 def rename_predicted_tomograms(
     even_tomos: List,
     tomogram_dir: Path,
-    EVEN_SUFFIX: str,
+    even_suffix: str,
 ):
     """
     Gives denoised tomograms as cryoCARE likes to name them after the even tomograms.
     """
     even_tomos = [Path(tomo) for tomo in even_tomos]
     even_tomos = [Path(f"{tomogram_dir}/{tomo.name}") for tomo in even_tomos]
-    [tomo.rename(Path(f"{tomogram_dir}/{tomo.stem.replace(EVEN_SUFFIX,'')}{tomo.suffix}")) for tomo in even_tomos]
+    [tomo.rename(Path(f"{tomogram_dir}/{tomo.stem.replace(even_suffix,'')}{tomo.suffix}")) for tomo in even_tomos]

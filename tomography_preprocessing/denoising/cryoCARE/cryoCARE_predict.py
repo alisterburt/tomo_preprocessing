@@ -105,7 +105,7 @@ def cryoCARE_predict(
     rename_predicted_tomograms(
     even_tomos=even_tomos,
     tomogram_dir=tomogram_dir,
-    EVEN_SUFFIX=EVEN_SUFFIX,
+    even_suffix=EVEN_SUFFIX,
     )
     
     console.log('Denoised tomograms successfully generated, finalising metadata')
