@@ -18,7 +18,8 @@ def create_denoising_directory_structure(
     training_dir = output_directory / 'external' / 'training' 
     training_dir.mkdir(parents=True, exist_ok=True)
     tomogram_dir = output_directory / 'tomograms'
-    tomogram_dir.mkdir(parents=True, exist_ok=True)
+    if not training_job:
+        tomogram_dir.mkdir(parents=True, exist_ok=True)
     tilt_series_dir = output_directory / 'tilt_series'
     tilt_series_dir.mkdir(parents=True, exist_ok=True)
     return training_dir, tomogram_dir, tilt_series_dir
