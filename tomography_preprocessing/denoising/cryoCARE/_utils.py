@@ -79,7 +79,7 @@ def generate_train_config_json(
     """
     Creates a Dict which can be saved as a json file for train_config.json file
     """
-    train_config_json = json.loads(f'{{"train_data": "{training_dir}", "epochs": 100, "steps_per_epoch": 200, "batch_size": 16, "unet_kern_size": 3, \
+    train_config_json = json.loads(f'{{"train_data": "{training_dir}", "epochs": 5, "steps_per_epoch": 200, "batch_size": 16, "unet_kern_size": 3, \
     "unet_n_depth": 3, "unet_n_first": 16, "learning_rate": 0.0004, "model_name": "{model_name}", "path": "{output_directory}"}}')
     return train_config_json
 

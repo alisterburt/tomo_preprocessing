@@ -140,7 +140,7 @@ def cryoCARE_train(
         output_directory=output_directory,
     )    
     
-    console.log(f'Denoising model can be found in {training_dir}/{MODEL_NAME}.tar.gz')
+    console.log(f'Denoising model can be found in {output_directory}/{MODEL_NAME}.tar.gz')
     
     console.save_html(str(output_directory / 'log.html'), clear=False)
     console.save_text(str(output_directory / 'log.txt'), clear=False)
