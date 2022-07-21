@@ -1,7 +1,7 @@
 from pathlib import Path
 
 import pandas as pd
-from lil_aretomo import run_aretomo_alignment
+from lil_aretomo import align_tilt_series_with_aretomo
 from rich.console import Console
 from typing import Optional, Tuple
 
